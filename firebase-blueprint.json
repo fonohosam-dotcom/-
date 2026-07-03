@@ -1,0 +1,71 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "App users registered under Unified National Registry or verified with Google Sign-In",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "email": { "type": "string" },
+        "fullName": { "type": "string" },
+        "role": { "type": "string", "enum": ["admin", "citizen", "researcher", "charity", "donor"] },
+        "municipality": { "type": "string" },
+        "nationalId": { "type": "string" },
+        "phone": { "type": "string" },
+        "address": { "type": "string" },
+        "gamificationPoints": { "type": "number" }
+      },
+      "required": ["id", "email", "fullName", "role"]
+    },
+    "Case": {
+      "title": "Case",
+      "description": "Humanitarian or rehabilitation request cases",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "caseNumber": { "type": "string" },
+        "titleAr": { "type": "string" },
+        "titleEn": { "type": "string" },
+        "descriptionAr": { "type": "string" },
+        "descriptionEn": { "type": "string" },
+        "category": { "type": "string" },
+        "severity": { "type": "string", "enum": ["critical", "high", "medium", "normal"] },
+        "status": { "type": "string", "enum": ["pending", "verified", "active", "funded", "completed"] },
+        "amountNeeded": { "type": "number" },
+        "amountRaised": { "type": "number" },
+        "municipality": { "type": "string" }
+      },
+      "required": ["id", "caseNumber", "titleAr", "status", "amountNeeded", "amountRaised"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Cryptographic or standard donation transaction logging",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "caseId": { "type": "string" },
+        "donorName": { "type": "string" },
+        "amount": { "type": "number" },
+        "currency": { "type": "string" },
+        "timestamp": { "type": "string" },
+        "hash": { "type": "string" },
+        "method": { "type": "string" }
+      },
+      "required": ["id", "amount", "currency", "timestamp"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profiles"
+    },
+    "/cases/{caseId}": {
+      "schema": "Case",
+      "description": "Verified cases"
+    },
+    "/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "Donation transactions"
+    }
+  }
+}

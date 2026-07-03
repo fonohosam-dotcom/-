@@ -1,0 +1,10 @@
+{
+  "name": "Remix: منصة التكافل الوطني الذكية",
+  "description": "السجل الوطني الموحد للمساعدات والتمكين الاجتماعي والتحقق الميداني وعقد الصدقات الجارية الموثقة.",
+  "requestFramePermissions": [
+    "camera"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

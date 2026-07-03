@@ -1,0 +1,5 @@
+-e   color: #94A3B8 !important;
+}
+.dark .border-slate-200, .dark .border-slate-100, .dark .border-gray-200 {
+  border-color: #1E293B !important;
+}
