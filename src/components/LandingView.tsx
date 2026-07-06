@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Case, MajorProject, Fund } from "../types";
 import { triggerHaptic } from "../utils/haptics";
 import { 
-  HeartHandshake, 
+  HeartHandshake, Home, Megaphone, 
   Coins, 
   ClipboardList, 
   UserCheck, 
@@ -24,7 +24,7 @@ import {
   Plus, 
   Sparkles, 
   Check, 
-  AlertCircle,
+  AlertCircle, HeartPulse,
   FileText
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
@@ -36,7 +36,7 @@ interface LandingViewProps {
   funds: Fund[];
   onSubmitReport: (reportData: any) => Promise<void>;
   onNavigateToDonor: () => void;
-  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify") => void;
+  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify" | "medical" | "intake") => void;
   activeGeoSOS?: string | null;
   lang?: "ar" | "en" | "zh" | "fr" | "ru";
   reports?: any[];
@@ -333,42 +333,45 @@ export default function LandingView({
     <div className="space-y-12">
       
       {/* Premium Welcome & Branding Banner with Particle Glow */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-[#063b30] via-[#0b5c47] to-[#128160] text-white p-8 md:p-12 text-right space-y-6 shadow-2xl border border-emerald-950/20">
-        <div className="absolute top-[-50%] left-[-10%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl select-none pointer-events-none"></div>
-        <div className="absolute bottom-[-30%] right-[-5%] w-80 h-80 bg-teal-500/10 rounded-full blur-3xl select-none pointer-events-none"></div>
+      {!activeLauncher && (
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-l from-[#063b30] via-[#0b5c47] to-[#128160] text-white p-8 md:p-12 text-right space-y-6 shadow-2xl border border-emerald-950/20">
+          <div className="absolute top-[-50%] left-[-10%] w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl select-none pointer-events-none"></div>
+          <div className="absolute bottom-[-30%] right-[-5%] w-80 h-80 bg-teal-500/10 rounded-full blur-3xl select-none pointer-events-none"></div>
 
-        <div className="relative z-10 max-w-4xl space-y-4">
-          <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-widest bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 rounded-full border border-emerald-500/30 font-mono">
-            <Sparkles className="w-3 h-3 text-emerald-400 animate-spin" />
-            التكامل التقني للحوكمة والشفافية التكافلية
-          </span>
-          <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight font-sans">
-            منصة التكافل الوطني الذكية <span className="text-emerald-300">V2</span>
-          </h1>
-          <p className="text-xs md:text-sm opacity-90 leading-relaxed font-light text-slate-100 max-w-3xl">
-            السجل الوطني الموحد للمستفيدين وخدمات التمكين الاجتماعي والمساعدات العينية والمالية الموثقة. نربط المانحين والباحثين الاجتماعيين والجمعيات الوطنية واللجان الميدانية الشريكة مباشرة بشفافية مطلقة محاسبياً وشرعياً تحت رقابة ديوان المحاسبة العام.
-          </p>
+          <div className="relative z-10 max-w-4xl space-y-4">
+            <span className="inline-flex items-center gap-1.5 text-[10px] uppercase font-black tracking-widest bg-emerald-500/20 text-emerald-300 px-3.5 py-1.5 rounded-full border border-emerald-500/30 font-mono">
+              <Sparkles className="w-3 h-3 text-emerald-400 animate-spin" />
+              التكامل التقني للحوكمة والشفافية التكافلية
+            </span>
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight font-sans">
+              منصة التكافل الذكية <span className="text-emerald-300">V2</span>
+            </h1>
+            <p className="text-xs md:text-sm opacity-90 leading-relaxed font-light text-slate-100 max-w-3xl">
+              السجل الوطني الموحد للمستفيدين وخدمات التمكين الاجتماعي والمساعدات العينية والمالية الموثقة. نربط المانحين والباحثين الاجتماعيين والجمعيات الخيرية واللجان الميدانية الشريكة مباشرة بشفافية مطلقة محاسبياً وشرعياً تحت رقابة لجنة الرقابة.
+            </p>
+          </div>
         </div>
-      </div>
+      )}
 
       {/* QUICK LAUNCHER CONTROL HUB - 4 MAIN HIGH-END INTERACTIVE BUTTONS */}
-      <div className="space-y-6">
-        <div className="text-center md:text-right space-y-2">
-          <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-100">
-            بوابة التكافل الموحدة - خدمات الجمهور والتمكين
-          </h2>
-          <p className="text-xs text-slate-500 dark:text-slate-400">
-            اختر البوابة المناسبة لاحتياجك للبدء الفوري مع تجربة تفاعلية مبسطة ومتكاملة
-          </p>
-        </div>
+      {!activeLauncher && (
+        <div className="space-y-6">
+          <div className="text-center md:text-right space-y-2">
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 dark:text-slate-100">
+              بوابة التكافل الموحدة - خدمات الجمهور والتمكين
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              اختر البوابة المناسبة لاحتياجك للبدء الفوري مع تجربة تفاعلية مبسطة ومتكاملة
+            </p>
+          </div>
 
         {/* The 4 Launcher Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
           
           {/* Card 1: Donor Portal */}
           <button
             onClick={() => {
-              setActiveLauncher("donor");
+              if (onNavigateToDonor) onNavigateToDonor();
               setSigningCase(null);
               setSigningSuccess(false);
             }}
@@ -381,7 +384,7 @@ export default function LandingView({
             <div className="absolute top-[-20%] left-[-10%] w-24 h-24 bg-emerald-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
             <div className="flex items-center justify-between mb-4">
               <span className="w-12 h-12 rounded-2xl bg-emerald-100 dark:bg-emerald-950/40 flex items-center justify-center text-emerald-600 dark:text-emerald-400 text-xl font-bold group-hover:scale-110 transition-transform">
-                🪙
+                <Coins className="w-6 h-6" />
               </span>
               <span className="text-[9px] bg-emerald-500/10 text-[#0F6E56] dark:text-emerald-400 px-2.5 py-1 rounded-full font-black">
                 بوابة المانح
@@ -392,14 +395,14 @@ export default function LandingView({
               <ArrowLeft className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all" />
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              استكشف الحالات الإنسانية المتعففة، مدارس ومستشفيات معطلة، وتبرع بأمان تام بنظام التوقيع العشري والمحفظة الرقمية.
+              استكشف الحالات الإنسانية المتعففة، آبار ومساكن محتاجة للترميم، وتبرع بأمان تام بنظام التوقيع العشري والمحفظة الرقمية.
             </p>
           </button>
 
           {/* Card 2: Intake Application */}
           <button
             onClick={() => {
-              setActiveLauncher("intake");
+              if (onNavigateToTab) onNavigateToTab("intake");
               setIntakeStep(1);
               setIntakeSuccess(false);
             }}
@@ -412,7 +415,7 @@ export default function LandingView({
             <div className="absolute top-[-20%] left-[-10%] w-24 h-24 bg-indigo-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
             <div className="flex items-center justify-between mb-4">
               <span className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/40 flex items-center justify-center text-indigo-600 dark:text-indigo-400 text-xl font-bold group-hover:scale-110 transition-transform">
-                🏡
+                <Home className="w-6 h-6" />
               </span>
               <span className="text-[9px] bg-indigo-500/10 text-indigo-700 dark:text-indigo-400 px-2.5 py-1 rounded-full font-black">
                 طلب التمكين
@@ -430,7 +433,7 @@ export default function LandingView({
           {/* Card 3: Report Case in Need */}
           <button
             onClick={() => {
-              setActiveLauncher("report-need");
+              if (onNavigateToTab) onNavigateToTab("verify");
               setReportType("need");
               setReportSuccess(false);
             }}
@@ -443,7 +446,7 @@ export default function LandingView({
             <div className="absolute top-[-20%] left-[-10%] w-24 h-24 bg-blue-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
             <div className="flex items-center justify-between mb-4">
               <span className="w-12 h-12 rounded-2xl bg-blue-100 dark:bg-blue-950/40 flex items-center justify-center text-blue-600 dark:text-blue-400 text-xl font-bold group-hover:scale-110 transition-transform">
-                📢
+                <Megaphone className="w-6 h-6" />
               </span>
               <span className="text-[9px] bg-blue-500/10 text-blue-700 dark:text-blue-400 px-2.5 py-1 rounded-full font-black">
                 إبلاغ عن محتاج
@@ -461,7 +464,7 @@ export default function LandingView({
           {/* Card 4: Report Fraud or Double Donations */}
           <button
             onClick={() => {
-              setActiveLauncher("report-fraud");
+              if (onNavigateToTab) onNavigateToTab("verify");
               setReportType("fraud");
               setReportSuccess(false);
             }}
@@ -474,7 +477,7 @@ export default function LandingView({
             <div className="absolute top-[-20%] left-[-10%] w-24 h-24 bg-rose-500/5 rounded-full group-hover:scale-150 transition-transform duration-500"></div>
             <div className="flex items-center justify-between mb-4">
               <span className="w-12 h-12 rounded-2xl bg-rose-100 dark:bg-rose-950/40 flex items-center justify-center text-rose-600 dark:text-rose-400 text-xl font-bold group-hover:scale-110 transition-transform">
-                🛡️
+                <ShieldAlert className="w-6 h-6" />
               </span>
               <span className="text-[9px] bg-rose-500/10 text-rose-700 dark:text-rose-400 px-2.5 py-1 rounded-full font-black">
                 مكافحة الاحتيال
@@ -491,6 +494,7 @@ export default function LandingView({
 
         </div>
       </div>
+      )}
 
       {/* DYNAMIC, ANIMATED CONTENT ZONE ACCORDING TO USER'S CHOICE */}
       <AnimatePresence mode="wait">
@@ -506,7 +510,7 @@ export default function LandingView({
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5 gap-4">
               <div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span>🏡</span> بوابة التمكين الاجتماعي وتسجيل طلبات الدعم الموحد
+                  <span><Home className="w-6 h-6" /></span> بوابة التمكين الاجتماعي وتسجيل طلبات الدعم الموحد
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   نظام حوكمة أهلي يستقبل طلبات الدعم بليبيا لضمان العدالة والنزاهة وتوزيع الدعم حسب سلم التقييم العشري.
@@ -631,7 +635,7 @@ export default function LandingView({
               <form onSubmit={(e) => { e.preventDefault(); setIntakeStep(3); }} className="space-y-6">
                 <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <h4 className="font-extrabold text-xs text-slate-600 dark:text-slate-400 mb-1">الخطوة الثانية: الهوية الليبية، بيانات السكن والحساب المصرفي</h4>
-                  <p className="text-[11px] text-slate-400">تستخدم هذه البيانات فقط للمطابقة مع مصلحة الأحوال المدنية وديوان مصرف ليبيا المركزي لضمان وصول الدعم المالي مباشرة لآيبان المستفيد.</p>
+                  <p className="text-[11px] text-slate-400">تستخدم هذه البيانات فقط للمطابقة مع السجل المدني لضمان وصول الدعم المالي مباشرة لآيبان المستفيد.</p>
                 </div>
 
                 {/* Realtime Estimated Priority Score Gauge */}
@@ -844,7 +848,7 @@ export default function LandingView({
                   <div className="border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-5 text-center space-y-3 bg-slate-50/50 dark:bg-slate-950/20">
                     <span className="text-2xl block">💳</span>
                     <h5 className="font-extrabold text-xs text-slate-800 dark:text-slate-200">صورة بطاقة الرقم الوطني</h5>
-                    <p className="text-[10px] text-slate-400">مستند إثبات الرقم الوطني الصادر عن مصلحة الأحوال المدنية</p>
+                    <p className="text-[10px] text-slate-400">مستند إثبات الرقم الوطني الصادر عن السجل المدني</p>
                     
                     {uploadedDocs.nationalIdCard ? (
                       <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-900/40 text-right">
@@ -932,7 +936,7 @@ export default function LandingView({
                     disabled={isSubmittingReport}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-10 py-3 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-900/10"
                   >
-                    {isSubmittingReport ? "جاري معالجة وربط الملف..." : "إرسال طلب التمكين للديوان الوطني 🚀"}
+                    {isSubmittingReport ? "جاري معالجة وربط الملف..." : "إرسال طلب التمكين للمنصة 🚀"}
                   </button>
                 </div>
               </div>
@@ -959,7 +963,7 @@ export default function LandingView({
                     <span className="font-bold">✉️ رسالة قصيرة جديدة</span>
                   </div>
                   <div className="space-y-1">
-                    <p className="font-black text-xs text-emerald-400">من: منصة التكافل الوطني (Takaful-LY)</p>
+                    <p className="font-black text-xs text-emerald-400">من: منصة التكافل (Takaful-LY)</p>
                     <p className="text-[11px] leading-relaxed text-slate-100">
                       "عزيزي المواطن، تم استلام طلبك رقم <span className="font-mono text-emerald-300">TK-2026-{(Math.random()*90000+10000).toFixed(0)}</span> لـ {selectedCat.title} بنجاح. رمز التأكيد الوطني الخاص بك هو: <span className="font-mono font-bold text-amber-300">2291.95</span>. سيقوم الباحث الميداني بالاتصال بك قريباً على الرقم {phone}."
                     </p>
@@ -1021,7 +1025,7 @@ export default function LandingView({
             <div className="flex flex-col md:flex-row items-start md:items-center justify-between border-b border-slate-100 dark:border-slate-800 pb-5 gap-4">
               <div>
                 <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
-                  <span>🪙</span> بوابة المانح والمتبرع الذكية - استعراض حي وتوقيع عشري موثق
+                  <span><Coins className="w-6 h-6" /></span> بوابة المانح والمتبرع الذكية - استعراض حي وتوقيع عشري موثق
                 </h3>
                 <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   استخدم الخريطة التفاعلية والبحث لتصفح الحالات، وتبرع فوراً بتوقيعك الإلكتروني لتحديث السجل الوطني مباشرة.
@@ -1161,7 +1165,7 @@ export default function LandingView({
                   <div className="flex gap-1 overflow-x-auto pb-1">
                     {[
                       { id: null, label: "الكل 📋" },
-                      { id: "سكن", label: "سكن 🏡" },
+                      { id: "سكن", label: "سكن 🏠" },
                       { id: "غذاء", label: "غذاء 🌾" },
                       { id: "علاج", label: "علاج 🩺" },
                       { id: "زواج", label: "زواج 💍" },
@@ -1478,11 +1482,11 @@ export default function LandingView({
                 <h3 className="text-xl font-black text-slate-900 dark:text-slate-100 flex items-center gap-2">
                   {reportType === "need" ? (
                     <>
-                      <span>📢</span> الإبلاغ الاجتماعي العام وتوثيق الحالات المتعففة
+                      <span><Megaphone className="w-6 h-6" /></span> الإبلاغ الاجتماعي العام وتوثيق الحالات المتعففة
                     </>
                   ) : (
                     <>
-                      <span>🛡️</span> مكافحة الاحتيال والازدواجية والفساد المالي
+                      <span><ShieldAlert className="w-6 h-6" /></span> مكافحة الاحتيال والازدواجية والفساد المالي
                     </>
                   )}
                 </h3>
@@ -1606,7 +1610,9 @@ export default function LandingView({
       </AnimatePresence>
 
       {/* Live Platform Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      {!activeLauncher && (
+        <>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
         <div className="bg-slate-900 border border-slate-800 p-5 rounded-3xl shadow-sm text-right relative overflow-hidden group">
           <div className="absolute -left-4 -bottom-4 text-slate-800/50 text-5xl font-black group-hover:scale-125 transition-transform">👁️</div>
           <span className="text-xs text-slate-400 block font-bold">إجمالي الزيارات</span>
@@ -1623,14 +1629,14 @@ export default function LandingView({
           <span className="text-3xl font-black text-white font-mono mt-1 block">{registeredUsersCount.toLocaleString('ar-LY')}</span>
         </div>
         <div className="bg-amber-900 border border-amber-800 p-5 rounded-3xl shadow-sm text-right relative overflow-hidden group">
-          <div className="absolute -left-4 -bottom-4 text-amber-800/50 text-5xl font-black group-hover:scale-125 transition-transform">🪙</div>
+          <div className="absolute -left-4 -bottom-4 text-amber-800/50 text-5xl font-black group-hover:scale-125 transition-transform"><Coins className="w-6 h-6" /></div>
           <span className="text-xs text-amber-300 block font-bold">إجمالي المساهمات (د.ل)</span>
           <span className="text-3xl font-black text-white font-mono mt-1 block">{totalDonated.toLocaleString('ar-LY')}</span>
         </div>
       </div>
 
       {/* Quick KPI stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm text-right relative overflow-hidden group">
           <div className="absolute -left-4 -bottom-4 text-slate-100 dark:text-slate-800/20 text-5xl font-black group-hover:scale-125 transition-transform">📋</div>
           <span className="text-xs text-gray-400 block font-bold">الملفات المسجلة بالسجل</span>
@@ -1647,7 +1653,7 @@ export default function LandingView({
           <span className="text-3xl font-black text-slate-900 dark:text-slate-100 font-mono mt-1 block">{closedCases.length}</span>
         </div>
         <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 rounded-3xl shadow-sm text-right relative overflow-hidden group">
-          <div className="absolute -left-4 -bottom-4 text-emerald-100 dark:text-emerald-950/20 text-5xl font-black group-hover:scale-125 transition-transform">🪙</div>
+          <div className="absolute -left-4 -bottom-4 text-emerald-100 dark:text-emerald-950/20 text-5xl font-black group-hover:scale-125 transition-transform"><Coins className="w-6 h-6" /></div>
           <span className="text-xs text-gray-400 block font-bold">المساهمات التراكمية الموثقة</span>
           <span className="text-3xl font-black text-emerald-600 dark:text-emerald-400 font-mono mt-1 block">{totalDonated.toLocaleString('ar-LY')} د.ل</span>
         </div>
@@ -1694,6 +1700,8 @@ export default function LandingView({
           </div>
         </div>
       </div>
+      </>
+      )}
 
     </div>
   );

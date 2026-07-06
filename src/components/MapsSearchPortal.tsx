@@ -1,9 +1,8 @@
 import React, { useState } from "react";
 import { Case, MajorProject, User } from "../types";
-import LibyaInteractiveMap from "./LibyaInteractiveMap";
 import LibyaLeafletMap from "./LibyaLeafletMap";
 import GISHeatmap from "./GISHeatmap";
-import { MapPin, Search, Compass, ShieldCheck, Activity, Landmark, School, Check, Heart, Flame, AlertCircle, TrendingUp } from "lucide-react";
+import { MapPin, Coins, Building, Search, Compass, ShieldCheck, Activity, Landmark, School, Check, Heart, Flame, AlertCircle, TrendingUp } from "lucide-react";
 import { ResponsiveContainer, ScatterChart, Scatter, XAxis, YAxis, ZAxis, Tooltip, Cell, LineChart, Line, CartesianGrid } from "recharts";
 
 interface MapsSearchPortalProps {
@@ -23,7 +22,7 @@ export default function MapsSearchPortal({
   onDonate,
   lang = "ar",
 }: MapsSearchPortalProps) {
-  const [mapMode, setMapMode] = useState<"google" | "leaflet" | "gis">("google");
+  const [mapMode, setMapMode] = useState<"leaflet" | "gis">("leaflet");
   const [showEmergencyLayer, setShowEmergencyLayer] = useState(true);
   const [showProjectsLayer, setShowProjectsLayer] = useState(true);
   const [showCharitiesLayer, setShowCharitiesLayer] = useState(true);
@@ -140,7 +139,7 @@ export default function MapsSearchPortal({
         </div>
         <h2 className="text-xl font-black">مركز الخرائط الذكية ومحرك البحث الاجتماعي</h2>
         <p className="text-xs text-emerald-100 opacity-90 leading-relaxed max-w-2xl">
-          تتبع فوري ومطابقة جغرافية لحالات العائلات المحتاجة ومواقع المدارس والمستشفيات المقترحة والمدعومة. نقوم بحجب البيانات الدقيقة للخصوصية ونظهر المؤشرات البلدية الكلية.
+          تتبع فوري ومطابقة جغرافية لحالات العائلات المحتاجة ومشاريع الآبار والإسكان والمدعومة. نقوم بحجب البيانات الدقيقة للخصوصية ونظهر المؤشرات البلدية الكلية.
         </p>
       </div>
 
@@ -168,7 +167,7 @@ export default function MapsSearchPortal({
               className="w-full bg-slate-900/80 border border-slate-800 focus:border-emerald-500 focus:outline-none rounded-xl p-3 text-xs text-white placeholder-gray-500 text-right"
               placeholder={aiMode === "search" 
                 ? "مثال: ما هي آخر أخبار إعادة إعمار درنة وصيانة الجسور فيها؟" 
-                : "مثال: أين تقع مستشفى صبراتة التعليمي وما هي ميزاتها الجغرافية؟"
+                : "مثال: أين يقع مشروع بئر غدامس وما هي ميزاته الجغرافية؟"
               }
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAISubmit();
@@ -293,14 +292,7 @@ export default function MapsSearchPortal({
           </span>
           <div className="flex flex-col gap-2">
             <div className="flex flex-wrap gap-1.5 justify-end">
-              <button
-                onClick={() => setMapMode("google")}
-                className={`px-3 py-1 rounded-xl text-[10px] font-black cursor-pointer transition-colors ${
-                  mapMode === "google" ? "bg-emerald-600 text-white" : "bg-slate-200 text-slate-700 hover:bg-slate-300"
-                }`}
-              >
-                خرائط جوجل (متقدمة)
-              </button>
+              
               <button
                 onClick={() => setMapMode("leaflet")}
                 className={`px-3 py-1 rounded-xl text-[10px] font-black cursor-pointer transition-colors ${
@@ -355,30 +347,7 @@ export default function MapsSearchPortal({
         {/* Render Map */}
         <div className="grid grid-cols-1 lg:grid-cols-4 bg-slate-50">
           <div className="lg:col-span-3 p-4 relative h-[680px] flex items-center justify-center">
-            {mapMode === "google" ? (
-              <LibyaInteractiveMap
-                cases={cases}
-                projects={projects}
-                charities={charities}
-                showEmergency={showEmergencyLayer}
-                showProjects={showProjectsLayer}
-                showCharities={showCharitiesLayer}
-                lang={(lang === "ar" || lang === "en" || lang === "zh" || lang === "fr" || lang === "ru") ? lang : "ar"}
-                onDonateDirect={(caseId, amount) => {
-                  if (onDonate) {
-                    onDonate({
-                      donorId: user?.id || null,
-                      donorNameOverride: user?.fullName || "متبرع فاعل خير",
-                      caseId: caseId,
-                      fundType: "صدقة",
-                      amount: amount,
-                      currency: "LYD",
-                      paymentMethod: "خرائط جوجل التفاعلية"
-                    });
-                  }
-                }}
-              />
-            ) : mapMode === "leaflet" ? (
+            {mapMode === "leaflet" ? (
               <LibyaLeafletMap
                 cases={cases}
                 projects={projects}
@@ -722,7 +691,7 @@ export default function MapsSearchPortal({
             <div className="relative">
               <input
                 type="text"
-                placeholder="مثال: LY-2026-0001 أو مدرسة..."
+                placeholder="مثال: LY-2026-0001 أو بئر..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -817,7 +786,6 @@ export default function MapsSearchPortal({
               activeTab === "projects" ? "text-emerald-700 border-b-2 border-emerald-600 font-extrabold" : "text-gray-400"
             }`}
           >
-            المستشفيات والمدارس والمنشآت ({filteredProjects.length})
           </button>
         </div>
 
@@ -873,7 +841,7 @@ export default function MapsSearchPortal({
                         }}
                         className="bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] cursor-pointer"
                       >
-                        تبرع فوري 🪙
+                        تبرع فوري <Coins className="w-3 h-3 inline mr-1" />
                       </button>
                     </div>
                   </div>
@@ -894,7 +862,7 @@ export default function MapsSearchPortal({
                   <div key={p.id} className="border border-slate-100 rounded-2xl p-4 bg-slate-50 flex flex-col justify-between space-y-3 hover:border-indigo-200 hover:shadow-sm transition-all text-right">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-extrabold">
-                        {p.category === "school" ? "مدرسة تعليمية" : p.category === "hospital" ? "مستشفى طبي" : "بنية تحتية"}
+                        {p.category === "well" ? "بئر" : p.category === "housing" ? "إسكان" : "بنية تحتية"}
                       </span>
                       <span className="font-mono text-[10px] text-gray-400">{p.projectNumber}</span>
                     </div>
@@ -933,7 +901,7 @@ export default function MapsSearchPortal({
                         }}
                         className="bg-indigo-600 hover:bg-indigo-700 text-white font-bold px-3 py-1 rounded-lg text-[10px] cursor-pointer"
                       >
-                        مساهمة بالإعمار 🏢
+                        مساهمة بالإعمار <Building className="w-3 h-3 inline mr-1" />
                       </button>
                     </div>
                   </div>
@@ -942,7 +910,7 @@ export default function MapsSearchPortal({
 
               {filteredProjects.length === 0 && (
                 <div className="col-span-full py-12 text-center text-gray-400 text-xs font-bold">
-                  لم نعثر على أي منشآت أو مدارس أو مستشفيات مطابقة لخيارات البحث الحالية.
+                  لم نعثر على مشاريع مطابقة.
                 </div>
               )}
             </div>

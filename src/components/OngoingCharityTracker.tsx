@@ -31,25 +31,10 @@ export default function OngoingCharityTracker({ projects }: OngoingCharityTracke
           unitName = "لتر مياه يومياً";
           multiplier = 0.45; // 0.45 beneficiaries per 1 LYD
           break;
-        case "hospital":
-          baseBeneficiaries = 2500;
-          unitName = "استشارة طبية مجانية";
-          multiplier = 0.25;
-          break;
-        case "school":
-          baseBeneficiaries = 600;
-          unitName = "ساعات تعليمية موثقة";
-          multiplier = 0.15;
-          break;
         case "orphan_care":
           baseBeneficiaries = 300;
           unitName = "كفالة أيتام دورية";
           multiplier = 0.08;
-          break;
-        case "mosque":
-          baseBeneficiaries = 1500;
-          unitName = "مصلٍ بانتظام";
-          multiplier = 0.35;
           break;
         case "housing":
           baseBeneficiaries = 150;
@@ -125,296 +110,161 @@ export default function OngoingCharityTracker({ projects }: OngoingCharityTracke
     hospital: "رعاية طبية",
     school: "تعليم ومدارس",
     orphan_care: "كفالة أيتام",
-    mosque: "عمران ومساجد",
+    mosque: "إسكان",
     housing: "إيواء مستورين",
   };
 
   const getCategoryIcon = (cat: string) => {
     switch (cat) {
       case "well": return <Waves className="w-4 h-4 text-sky-500" />;
-      case "hospital": return <Activity className="w-4 h-4 text-rose-500" />;
-      case "school": return <GraduationCap className="w-4 h-4 text-indigo-500" />;
-      case "orphan_care": return <Heart className="w-4 h-4 text-pink-500" />;
-      case "mosque": return <Landmark className="w-4 h-4 text-emerald-500" />;
-      case "housing": return <ShieldCheck className="w-4 h-4 text-amber-500" />;
-      default: return <Sparkles className="w-4 h-4 text-slate-500" />;
+      case "orphan_care": return <Heart className="w-4 h-4 text-rose-500" />;
+      case "housing": return <Landmark className="w-4 h-4 text-emerald-500" />;
+      default: return <Heart className="w-4 h-4 text-emerald-500" />;
     }
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800/80 rounded-3xl p-6 shadow-sm space-y-6" id="ongoing-charity-tracker-card">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-3xl p-6 shadow-sm font-sans" dir="rtl">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 dark:border-slate-800 pb-5">
-        <div className="text-right">
-          <div className="flex items-center gap-2 flex-row-reverse">
-            <span className="p-2 bg-emerald-50 dark:bg-emerald-950/40 rounded-2xl text-emerald-700 dark:text-emerald-400">
-              <TrendingUp className="w-5 h-5" />
-            </span>
-            <h3 className="text-base font-black text-slate-950 dark:text-white">
-              مؤشر الأثر الاجتماعي المستدام للصدقات الجارية
-            </h3>
-          </div>
-          <p className="text-xs text-gray-500 dark:text-gray-400 mt-1 mr-10">
-            متابعة تراكمية ونمو أعداد المستفيدين المباشرين من مشاريع الوقف والصدقة الجارية ببلديات ليبيا
-          </p>
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+        <div>
+          <h2 className="text-xl font-black text-slate-800 dark:text-white flex items-center gap-2">
+            <TrendingUp className="w-6 h-6 text-emerald-500" />
+            مؤشر الأثر التضامني المباشر
+          </h2>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">تتبع نمو عدد المستفيدين المباشرين من أموال التبرعات عبر كافة المشاريع والبلديات</p>
         </div>
-
-        {/* Tab Switcher */}
-        <div className="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl self-start md:self-center text-xs font-bold font-sans">
-          <button
+        
+        <div className="bg-slate-100 dark:bg-slate-800 p-1 rounded-xl flex items-center">
+          <button 
             onClick={() => setActiveTab("growth")}
-            className={`px-4 py-2 rounded-lg transition-all ${
-              activeTab === "growth"
-                ? "bg-emerald-700 text-white shadow-sm font-black"
-                : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-            }`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${activeTab === "growth" ? "bg-white dark:bg-slate-700 shadow-sm text-emerald-700 dark:text-emerald-300" : "text-slate-500 dark:text-slate-400 hover:text-slate-700"}`}
           >
-            مسار نمو الأثر (الزمني)
+            النمو الزمني للأثر
           </button>
-          <button
+          <button 
             onClick={() => setActiveTab("breakdown")}
-            className={`px-4 py-2 rounded-lg transition-all ${
-              activeTab === "breakdown"
-                ? "bg-emerald-700 text-white shadow-sm font-black"
-                : "text-slate-500 hover:text-slate-800 dark:hover:text-slate-200"
-            }`}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-colors ${activeTab === "breakdown" ? "bg-white dark:bg-slate-700 shadow-sm text-emerald-700 dark:text-emerald-300" : "text-slate-500 dark:text-slate-400 hover:text-slate-700"}`}
           >
-            المستفيدين لكل وقفية
+            التحليل التفصيلي للمشاريع
           </button>
         </div>
       </div>
 
-      {/* Hero Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-gradient-to-br from-emerald-50/50 to-teal-50/20 dark:from-emerald-950/10 dark:to-teal-950/5 border border-emerald-100/60 dark:border-emerald-800/20 p-4 rounded-2xl text-right flex items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] text-emerald-800 dark:text-emerald-300 font-bold block">إجمالي المستفيدين المباشرين</span>
-            <span className="text-2xl font-black text-emerald-900 dark:text-emerald-400 font-mono block mt-1">
-              {(totalBeneficiariesCount || 25600).toLocaleString()}
-            </span>
-            <span className="text-[9px] text-emerald-600 dark:text-emerald-500 font-bold block mt-0.5">موثق ومحدث ميدانياً ✓</span>
+      {/* Main Content Areas */}
+      {activeTab === "growth" && (
+        <div className="space-y-6 animate-fade-in">
+          {/* Big KPI Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="bg-emerald-50 dark:bg-emerald-950/20 rounded-2xl p-4 border border-emerald-100 dark:border-emerald-900/50">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-emerald-100 dark:bg-emerald-900 rounded-lg"><Users className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /></div>
+                <h3 className="text-[10px] font-bold text-emerald-900 dark:text-emerald-400 uppercase tracking-widest">إجمالي المستفيدين</h3>
+              </div>
+              <div className="text-3xl font-black text-emerald-700 dark:text-emerald-400">{totalBeneficiariesCount.toLocaleString()}</div>
+              <div className="text-[10px] text-emerald-600 dark:text-emerald-500 mt-1 font-bold">+12% نمو عن الشهر الماضي</div>
+            </div>
+            
+            <div className="bg-sky-50 dark:bg-sky-950/20 rounded-2xl p-4 border border-sky-100 dark:border-sky-900/50">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-sky-100 dark:bg-sky-900 rounded-lg"><Waves className="w-4 h-4 text-sky-700 dark:text-sky-400" /></div>
+                <h3 className="text-[10px] font-bold text-sky-900 dark:text-sky-400 uppercase tracking-widest">سقاية وإمداد مائي</h3>
+              </div>
+              <div className="text-3xl font-black text-sky-700 dark:text-sky-400">
+                {derivedWaqfData.filter(w => w.category === 'well').reduce((acc, curr) => acc + curr.beneficiaries, 0).toLocaleString()}
+              </div>
+              <div className="text-[10px] text-sky-600 dark:text-sky-500 mt-1 font-bold">مستفيد يومياً</div>
+            </div>
+
+            <div className="bg-rose-50 dark:bg-rose-950/20 rounded-2xl p-4 border border-rose-100 dark:border-rose-900/50">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-rose-100 dark:bg-rose-900 rounded-lg"><Heart className="w-4 h-4 text-rose-700 dark:text-rose-400" /></div>
+                <h3 className="text-[10px] font-bold text-rose-900 dark:text-rose-400 uppercase tracking-widest">رعاية أيتام</h3>
+              </div>
+              <div className="text-3xl font-black text-rose-700 dark:text-rose-400">
+                {derivedWaqfData.filter(w => w.category === 'orphan_care').reduce((acc, curr) => acc + curr.beneficiaries, 0).toLocaleString()}
+              </div>
+              <div className="text-[10px] text-rose-600 dark:text-rose-500 mt-1 font-bold">طفل وعائلة</div>
+            </div>
+
+            <div className="bg-indigo-50 dark:bg-indigo-950/20 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900/50">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="p-2 bg-indigo-100 dark:bg-indigo-900 rounded-lg"><Landmark className="w-4 h-4 text-indigo-700 dark:text-indigo-400" /></div>
+                <h3 className="text-[10px] font-bold text-indigo-900 dark:text-indigo-400 uppercase tracking-widest">إسكان متعففين</h3>
+              </div>
+              <div className="text-3xl font-black text-indigo-700 dark:text-indigo-400">
+                {derivedWaqfData.filter(w => w.category === 'housing').reduce((acc, curr) => acc + curr.beneficiaries, 0).toLocaleString()}
+              </div>
+              <div className="text-[10px] text-indigo-600 dark:text-indigo-500 mt-1 font-bold">مستفيد آمن</div>
+            </div>
           </div>
-          <span className="text-2xl p-2.5 bg-emerald-100/50 dark:bg-emerald-900/30 rounded-xl">👥</span>
-        </div>
 
-        <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/40 p-4 rounded-2xl text-right flex items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold block">متوسط كفاءة التشغيل والتنمية</span>
-            <span className="text-2xl font-black text-slate-800 dark:text-white font-mono block mt-1">
-              98.4%
-            </span>
-            <span className="text-[9px] text-slate-400 dark:text-slate-500 font-bold block mt-0.5">نسبة الفاقد المالي: 0%</span>
+          <div className="h-[300px] w-full mt-4">
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={growthTimelineData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.3}/>
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                  </linearGradient>
+                  <linearGradient id="colorWells" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#0EA5E9" stopOpacity={0.2}/>
+                    <stop offset="95%" stopColor="#0EA5E9" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                <XAxis dataKey="month" tick={{ fontSize: 10, fill: "#64748B", fontWeight: "bold" }} axisLine={false} tickLine={false} />
+                <YAxis tick={{ fontSize: 10, fill: "#64748B", fontWeight: "bold" }} axisLine={false} tickLine={false} tickFormatter={(val) => `${val/1000}k`} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)', fontWeight: 'bold', fontSize: '12px', textAlign: 'right', direction: 'rtl' }}
+                  itemStyle={{ color: '#1E293B', fontWeight: '900' }}
+                />
+                <Area type="monotone" dataKey="الآبار والمياه" stackId="1" stroke="#0EA5E9" fill="url(#colorWells)" strokeWidth={2} />
+                <Area type="monotone" dataKey="الرعاية الصحية" stackId="1" stroke="#F43F5E" fill="#F43F5E" fillOpacity={0.1} strokeWidth={2} />
+                <Area type="monotone" dataKey="التعليم وكفالة الأيتام" stackId="1" stroke="#F59E0B" fill="#F59E0B" fillOpacity={0.1} strokeWidth={2} />
+                <Area type="monotone" dataKey="إجمالي المستفيدين" stroke="#10B981" fill="url(#colorTotal)" strokeWidth={4} />
+              </AreaChart>
+            </ResponsiveContainer>
           </div>
-          <span className="text-2xl p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">🛡️</span>
         </div>
+      )}
 
-        <div className="bg-slate-50 dark:bg-slate-800/40 border border-slate-100 dark:border-slate-800/40 p-4 rounded-2xl text-right flex items-center justify-between gap-3">
-          <div>
-            <span className="text-[10px] text-gray-500 dark:text-gray-400 font-bold block">عدد الوقفيات والمشاريع الكبرى</span>
-            <span className="text-2xl font-black text-indigo-800 dark:text-indigo-400 font-mono block mt-1">
-              {derivedWaqfData.length} مشاريع
-            </span>
-            <span className="text-[9px] text-indigo-500 dark:text-indigo-400 font-bold block mt-0.5">مكتملة وتحت التنفيذ حالياً</span>
-          </div>
-          <span className="text-2xl p-2.5 bg-slate-100 dark:bg-slate-800 rounded-xl">🏛️</span>
-        </div>
-      </div>
-
-      {/* Interactive Visualizer Canvas */}
-      <div className="h-[280px] w-full bg-slate-50/50 dark:bg-slate-900/50 border border-slate-100 dark:border-slate-800 rounded-2xl p-3" style={{ direction: "ltr" }}>
-        {activeTab === "growth" ? (
-          <ResponsiveContainer width="100%" height="100%">
-            <AreaChart data={growthTimelineData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <defs>
-                <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0f766e" stopOpacity={0.25}/>
-                  <stop offset="95%" stopColor="#0f766e" stopOpacity={0}/>
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:hidden" />
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" className="hidden dark:block" />
-              <XAxis 
-                dataKey="month" 
-                tick={{ fontSize: 9, fontWeight: "bold" }} 
-                stroke="#64748b" 
-              />
-              <YAxis 
-                tick={{ fontSize: 9, fontWeight: "mono" }} 
-                stroke="#64748b" 
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  textAlign: "right", 
-                  borderRadius: "12px", 
-                  fontSize: "11px", 
-                  direction: "rtl",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e2e8f0"
-                }}
-              />
-              <Legend 
-                verticalAlign="top" 
-                height={36} 
-                wrapperStyle={{ fontSize: "10px", direction: "rtl", fontWeight: "bold" }}
-              />
-              <Area 
-                type="monotone" 
-                dataKey="إجمالي المستفيدين" 
-                stroke="#0f766e" 
-                strokeWidth={2.5}
-                fillOpacity={1} 
-                fill="url(#colorTotal)" 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="الآبار والمياه" 
-                stroke="#0ea5e9" 
-                strokeWidth={1.5}
-                fill="none" 
-              />
-              <Area 
-                type="monotone" 
-                dataKey="الرعاية الصحية" 
-                stroke="#f43f5e" 
-                strokeWidth={1.5}
-                fill="none" 
-              />
-            </AreaChart>
-          </ResponsiveContainer>
-        ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={breakdownChartData.slice(0, 8)} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" className="dark:hidden" />
-              <CartesianGrid strokeDasharray="3 3" stroke="#334155" className="hidden dark:block" />
-              <XAxis 
-                dataKey="name" 
-                tick={{ fontSize: 8, fontWeight: "bold" }} 
-                stroke="#64748b" 
-              />
-              <YAxis 
-                tick={{ fontSize: 9, fontWeight: "mono" }} 
-                stroke="#64748b" 
-              />
-              <Tooltip 
-                contentStyle={{ 
-                  textAlign: "right", 
-                  borderRadius: "12px", 
-                  fontSize: "11px", 
-                  direction: "rtl",
-                  backgroundColor: "#ffffff",
-                  border: "1px solid #e2e8f0"
-                }}
-              />
-              <Legend 
-                verticalAlign="top" 
-                height={36} 
-                wrapperStyle={{ fontSize: "10px", direction: "rtl", fontWeight: "bold" }}
-              />
-              <Bar dataKey="المستفيدون الفعليون" fill="#0d9488" radius={[4, 4, 0, 0]}>
-                {breakdownChartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={index === 0 ? "#115e59" : index % 2 === 0 ? "#0d9488" : "#0f766e"} />
-                ))}
-              </Bar>
-              <Bar dataKey="الطاقة الاستيعابية القصوى" fill="#cbd5e1" radius={[4, 4, 0, 0]} opacity={0.4} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      {/* Category filters & Detailed Table */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between flex-row-reverse">
-          <span className="text-xs font-black text-slate-800 dark:text-slate-200">
-            بيان تفصيلي بالمستفيدين والأثر التنموي الفعلي:
-          </span>
-
-          {/* Quick Category Filters */}
-          <div className="flex flex-row-reverse gap-1.5 overflow-x-auto pb-1 scrollbar-none text-[10px] font-bold">
-            <button
-              onClick={() => setSelectedCategory("all")}
-              className={`px-2.5 py-1 rounded-lg border transition-all ${
-                selectedCategory === "all"
-                  ? "bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 border-transparent"
-                  : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50"
-              }`}
-            >
-              الكل
-            </button>
-            {Object.keys(categoryLabels).map(cat => (
+      {activeTab === "breakdown" && (
+        <div className="space-y-6 animate-fade-in">
+          <div className="flex gap-2 overflow-x-auto pb-2 custom-scrollbar">
+            {["all", "well", "orphan_care", "housing"].map(cat => (
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-2.5 py-1 rounded-lg border transition-all flex items-center gap-1 flex-row-reverse ${
-                  selectedCategory === cat
-                    ? "bg-emerald-800 text-white border-transparent"
-                    : "bg-white dark:bg-slate-800 text-slate-500 border-slate-200/60 dark:border-slate-700/60 hover:bg-slate-50"
+                className={`px-4 py-2 rounded-xl text-xs font-bold transition-all shrink-0 border ${
+                  selectedCategory === cat 
+                    ? "bg-slate-800 text-white border-slate-800" 
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50"
                 }`}
               >
-                {getCategoryIcon(cat)}
-                <span>{categoryLabels[cat]}</span>
+                {cat === "all" ? "الكل" : categoryLabels[cat]}
               </button>
             ))}
           </div>
+
+          <div className="h-[350px] w-full">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart data={breakdownChartData.slice(0, 8)} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E2E8F0" opacity={0.5} />
+                <XAxis dataKey="name" tick={{ fontSize: 9, fill: "#64748B", fontWeight: "bold" }} axisLine={false} tickLine={false} interval={0} />
+                <YAxis tick={{ fontSize: 10, fill: "#64748B", fontWeight: "bold" }} axisLine={false} tickLine={false} />
+                <Tooltip 
+                  contentStyle={{ borderRadius: '16px', border: 'none', boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)', fontWeight: 'bold', fontSize: '11px', textAlign: 'right', direction: 'rtl' }}
+                  cursor={{ fill: '#F1F5F9', opacity: 0.5 }}
+                />
+                <Legend iconType="circle" wrapperStyle={{ fontSize: '11px', fontWeight: 'bold', paddingTop: '10px' }} />
+                <Bar dataKey="المستفيدون الفعليون" fill="#10B981" radius={[4, 4, 0, 0]} maxBarSize={40} />
+                <Bar dataKey="الطاقة الاستيعابية القصوى" fill="#E2E8F0" radius={[4, 4, 0, 0]} maxBarSize={40} />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
-
-        {/* List of Waqfs */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {derivedWaqfData
-            .filter(w => selectedCategory === "all" || w.category === selectedCategory)
-            .map((w) => {
-              return (
-                <div 
-                  key={w.id} 
-                  className="bg-slate-50 dark:bg-slate-800/30 border border-slate-100 dark:border-slate-800/40 p-4 rounded-2xl flex flex-col justify-between space-y-3 hover:border-emerald-300 dark:hover:border-emerald-900/60 transition-all"
-                >
-                  <div className="flex justify-between items-start flex-row-reverse">
-                    <div className="text-right">
-                      <div className="flex items-center gap-1.5 flex-row-reverse">
-                        {getCategoryIcon(w.category)}
-                        <span className="text-[10px] font-black text-slate-400 font-mono">{w.projectNumber}</span>
-                      </div>
-                      <h4 className="font-bold text-xs text-slate-900 dark:text-white mt-1 line-clamp-1">{w.title}</h4>
-                      <span className="text-[9px] bg-slate-100 dark:bg-slate-800 px-2 py-0.5 rounded font-black text-slate-500 mt-1.5 inline-block">
-                        📍 بلدية {w.municipality}
-                      </span>
-                    </div>
-
-                    <div className="text-left font-mono">
-                      <span className="text-xs font-black text-emerald-800 dark:text-emerald-400 block">{w.beneficiaries.toLocaleString()}</span>
-                      <span className="text-[8px] text-slate-400 font-bold block">مستفيد مباشر</span>
-                    </div>
-                  </div>
-
-                  {/* Visual Progress Bar of the endowment status */}
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-[9px] text-gray-500 dark:text-gray-400 flex-row-reverse">
-                      <span className="font-bold">{w.collectedAmount.toLocaleString()} من {w.targetAmount.toLocaleString()} د.ل</span>
-                      <span className="font-mono font-black text-emerald-700 dark:text-emerald-500">{w.completion}% مكتمل</span>
-                    </div>
-                    <div className="w-full bg-slate-200 dark:bg-slate-700 h-1.5 rounded-full overflow-hidden flex flex-row-reverse">
-                      <div 
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          w.completion >= 100 
-                            ? "bg-emerald-600" 
-                            : w.completion > 50 
-                            ? "bg-teal-500" 
-                            : "bg-sky-500"
-                        }`} 
-                        style={{ width: `${w.completion}%` }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-
-          {derivedWaqfData.filter(w => selectedCategory === "all" || w.category === selectedCategory).length === 0 && (
-            <div className="col-span-full py-10 text-center text-xs font-bold text-slate-400">
-              لا توجد مشاريع وقفيات مسجلة ضمن هذا التصنيف حالياً.
-            </div>
-          )}
-        </div>
-      </div>
+      )}
     </div>
   );
 }

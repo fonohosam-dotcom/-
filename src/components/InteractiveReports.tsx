@@ -9,8 +9,6 @@ import {
   Filter, Map, DollarSign, Wallet, ShieldAlert, CheckCircle2, Award, ArrowUpRight, ArrowDownLeft,
   FileDown, Loader2, Shield
 } from "lucide-react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 
 interface InteractiveReportsProps {
   cases: Case[];
@@ -35,40 +33,10 @@ export default function InteractiveReports({
 
   const handleExportPDF = async () => {
     setIsGeneratingPDF(true);
-    try {
-      // Small delay to ensure any layout changes settle
-      await new Promise((resolve) => setTimeout(resolve, 300));
-      const element = reportRef.current;
-      if (!element) return;
-
-      const canvas = await html2canvas(element, {
-        scale: 2, // High DPI for crisp printing
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#ffffff",
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.95);
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4",
-      });
-
-      const imgWidth = 210; // A4 standard width in mm
-      const pageHeight = 297; // A4 standard height in mm
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      
-      pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
-      
-      const filterLabel = timeFilter === "all" ? "شامل" : timeFilter === "30days" ? "30_يوماً" : timeFilter === "90days" ? "90_يوماً" : "عام_واحد";
-      const muniLabel = selectedMun === "all" ? "جميع_البلديات" : selectedMun;
-      pdf.save(`تقرير_السجل_الموحد_${filterLabel}_${muniLabel}.pdf`);
-    } catch (err) {
-      console.error("Error creating PDF report:", err);
-    } finally {
+    setTimeout(() => {
+      window.print();
       setIsGeneratingPDF(false);
-    }
+    }, 500);
   };
 
   // Get current date for temporal math (Mocking target system time: 2026-07-01)
@@ -130,8 +98,7 @@ export default function InteractiveReports({
     // Proportionally scale balance if not 'all' for visual consistency
     const fraction = timeFilter === "all" ? 1 : timeFilter === "1year" ? 0.8 : timeFilter === "90days" ? 0.4 : 0.15;
     return {
-      name: f.fundType === "زكاة" ? "أموال الزكاة الشرعية" : 
-            f.fundType === "صدقة" ? "صدقات عامة" :
+      name: f.fundType === "صدقة" ? "أموال الصدقات" : 
             f.fundType === "كفالة_يتيم" ? "كفالات الأيتام" :
             f.fundType === "صدقة_جارية" ? "صدقات جارية ومستمرة" : "مخصصات الطوارئ",
       value: Math.round(f.balance * fraction)
@@ -667,7 +634,7 @@ export default function InteractiveReports({
             <div className="flex justify-between items-start border-b-2 border-emerald-800 pb-5 flex-row-reverse">
               <div className="text-right space-y-1">
                 <h1 className="text-lg font-black text-emerald-900">الجمهورية الليبية</h1>
-                <h2 className="text-sm font-black text-slate-700">وزارة الشؤون الاجتماعية / الهيئة العامة للتكافل</h2>
+                <h2 className="text-sm font-black text-slate-700">إدارة منصة التكافل</h2>
                 <h3 className="text-xs font-bold text-slate-500">السجل الوطني الموحد للمساعدات الخيرية</h3>
               </div>
               <div className="flex flex-col items-center justify-center border-2 border-emerald-800/30 p-2.5 rounded-2xl bg-emerald-50/30">

@@ -28,8 +28,6 @@ import {
   Award,
   FileText
 } from "lucide-react";
-import { jsPDF } from "jspdf";
-import html2canvas from "html2canvas";
 
 interface AdminChartsProps {
   cases: Case[];
@@ -298,54 +296,10 @@ export default function AdminCharts({
 
   const handleExportPDF = async () => {
     setIsExporting(true);
-    const restoreStyleSheets = patchStyleSheets();
-    const restoreGetComputedStyle = patchGetComputedStyle();
-    try {
-      const element = document.getElementById("admin-official-report-container");
-      if (!element) return;
-
-      // Capture element as canvas with high resolution
-      const canvas = await html2canvas(element, {
-        scale: 2.0, // Retains premium vector quality for typography & Recharts
-        useCORS: true,
-        logging: false,
-        backgroundColor: "#FCFBF7" // Matches the warm textured paper background
-      });
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.98);
-
-      const pdf = new jsPDF({
-        orientation: "portrait",
-        unit: "mm",
-        format: "a4"
-      });
-
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-
-      const margin = 8;
-      const targetWidth = pdfWidth - (margin * 2);
-      const targetHeight = (canvas.height * targetWidth) / canvas.width;
-
-      // Handle height to fit beautifully on A4
-      if (targetHeight > (pdfHeight - (margin * 2))) {
-        // Multi-page layout split or perfect scale
-        const scaledHeight = Math.min(targetHeight, pdfHeight - (margin * 2));
-        const centeredY = (pdfHeight - scaledHeight) / 2;
-        pdf.addImage(imgData, "JPEG", margin, centeredY, targetWidth, scaledHeight);
-      } else {
-        pdf.addImage(imgData, "JPEG", margin, margin, targetWidth, targetHeight);
-      }
-
-      const timestamp = new Date().toISOString().split("T")[0];
-      pdf.save(`Takaful_Official_Statistical_Report_${reportSerial}_${timestamp}.pdf`);
-    } catch (error) {
-      console.error("Error generating report PDF:", error);
-    } finally {
-      restoreGetComputedStyle();
-      restoreStyleSheets();
+    setTimeout(() => {
+      window.print();
       setIsExporting(false);
-    }
+    }, 500);
   };
 
   return (
@@ -487,9 +441,9 @@ export default function AdminCharts({
             
             {/* Ministry Identification */}
             <div className="space-y-0.5 text-xs text-slate-700 order-3 md:order-1 font-sans">
-              <p className="font-extrabold text-sm text-slate-900">دولة ليبيا</p>
-              <p className="font-bold text-[#0F6E56]">حكومة الوحدة الوطنية</p>
-              <p className="font-medium text-slate-600">وزارة الشؤون الاجتماعية</p>
+              <p className="font-extrabold text-sm text-slate-900">ليبيا</p>
+              <p className="font-bold text-[#0F6E56]"></p>
+              <p className="font-medium text-slate-600">إدارة المنصة</p>
               <p className="text-[10px] text-slate-400 font-mono">الرمز التنظيمي: LY-TKFL-GOV</p>
             </div>
 
@@ -535,7 +489,7 @@ export default function AdminCharts({
             </h2>
             <p className="text-xs text-slate-500 max-w-xl mx-auto leading-relaxed font-sans">
               {isAr
-                ? "مستند بياني رسمي معتمد من ديوان التفتيش المالي والاجتماعي الموحد، يعكس حجم المساهمات المالية المباشرة، تصنيف البلديات، ونسب إنجاز المشاريع الكبرى."
+                ? "مستند بياني رسمي معتمد من إدارة التفتيش المالي والاجتماعي الموحد، يعكس حجم المساهمات المالية المباشرة، تصنيف البلديات، ونسب إنجاز المشاريع الكبرى."
                 : "An official analytical report certified by the Joint Board of Charitable Supervision, representing donation curves, municipal aid density and development project compliance rates."}
             </p>
           </div>
@@ -866,7 +820,7 @@ export default function AdminCharts({
               <div className="h-6 flex items-center justify-center">
                 <span className="font-mono text-xs italic text-amber-700/75 font-black tracking-wide">National.Social.Board</span>
               </div>
-              <p className="text-[9px] text-slate-400 font-sans">{isAr ? "ديوان رئاسة الوزراء" : "Cabinet Certified Seal"}</p>
+              <p className="text-[9px] text-slate-400 font-sans">{isAr ? "لجنة الإدارة" : "Cabinet Certified Seal"}</p>
             </div>
 
           </div>

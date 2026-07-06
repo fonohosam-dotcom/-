@@ -1,12 +1,14 @@
 import React, { useState } from "react";
 import { MajorProject, User } from "../types";
-import { Building2, School, Landmark, Activity, Compass, ArrowLeft, Send, CheckCircle, TrendingUp, Sparkles, Edit3, Trash2, X, Save } from "lucide-react";
+import { Building2, Coins, School, Landmark, Activity, Compass, ArrowLeft, Send, CheckCircle, TrendingUp, Sparkles, Edit3, Trash2, X, Save } from "lucide-react";
 import { customFetch } from "../utils/api";
 import { motion } from "motion/react";
 
 const fetch = customFetch;
 
+import { useNavigate, useParams } from "react-router-dom";
 interface InfrastructurePortalProps {
+  view?: "list" | "new" | "details";
   user: User | null;
   projects: MajorProject[];
   onDonateToProject?: (projId: string, amount: number) => Promise<void>;
@@ -22,13 +24,15 @@ export default function InfrastructurePortal({
   onRefreshData,
   onDeleteProject,
   onUpdateProject,
+  view = "list",
 }: InfrastructurePortalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<"all" | "school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("all");
-  const [showAddForm, setShowAddForm] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "well" | "orphan_care" | "housing">("all");
+  const navigate = useNavigate();
+  const showAddForm = view === "new";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState(150000);
-  const [category, setCategory] = useState<"school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("school");
+  const [category, setCategory] = useState<"well" | "orphan_care" | "housing">("well");
   const [municipality, setMunicipality] = useState("صبراتة");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -38,7 +42,7 @@ export default function InfrastructurePortal({
   const [editTitle, setEditTitle] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editTargetAmount, setEditTargetAmount] = useState(150000);
-  const [editCategory, setEditCategory] = useState<"school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("school");
+  const [editCategory, setEditCategory] = useState<"well" | "orphan_care" | "housing">("well");
   const [editMunicipality, setEditMunicipality] = useState("صبراتة");
 
   const filteredProjects = selectedCategory === "all" 
@@ -76,7 +80,7 @@ export default function InfrastructurePortal({
         }
         setTimeout(() => {
           setSuccessMsg("");
-          setShowAddForm(false);
+          navigate("/infrastructure");
         }, 3000);
       } else {
         alert("حدث خطأ أثناء حفظ المشروع بالملفات الرقابية.");
@@ -91,9 +95,6 @@ export default function InfrastructurePortal({
 
   const getIcon = (cat: string) => {
     switch (cat) {
-      case "school": return <School className="w-5 h-5 text-indigo-600" />;
-      case "hospital": return <Activity className="w-5 h-5 text-rose-600" />;
-      case "mosque": return <Landmark className="w-5 h-5 text-emerald-600" />;
       case "well": return <Compass className="w-5 h-5 text-sky-600" />;
       default: return <Building2 className="w-5 h-5 text-amber-600" />;
     }
@@ -101,9 +102,6 @@ export default function InfrastructurePortal({
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
-      case "school": return "مدرسة تعليمية";
-      case "hospital": return "مستشفى طبي";
-      case "mosque": return "مسجد عتيق";
       case "well": return "بئر مياه";
       case "orphan_care": return "رعاية أيتام";
       case "housing": return "مسكن عائلي";
@@ -140,22 +138,22 @@ export default function InfrastructurePortal({
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-950/30 via-[#0D1B2A] to-[#0D1B2A] -z-10"></div>
         <div className="space-y-1.5 flex-1">
           <span className="bg-indigo-950 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">
-            البنية التحتية والمنشآت العمومية الموحدة
+            مشاريع التنمية والآبار والسكن
           </span>
           <h2 className="text-2xl font-black flex items-center gap-2 flex-row-reverse justify-end mt-1 text-gray-50">
-            <span>🏫</span>
-            بوابة المدارس والمساجد والآبار والمشاريع التنموية
+            <span>💧</span>
+            بوابة الآبار والمشاريع التنموية والإسكان
           </h2>
           <p className="text-xs text-indigo-100/70 leading-relaxed max-w-2xl">
-            إعمار وتجهيز المرافق الصحية والتعليمية والمساجد وحفر آبار الإمداد المائي ببلديات ليبيا. نقوم بدراسة الاحتياج وإدراج المشاريع ومراقبة تبرعات التجهيز بمطابقة 100%.
+            إعمار وتجهيز آبار الإمداد المائي ومشاريع الإسكان ببلديات ليبيا. نقوم بدراسة الاحتياج وإدراج المشاريع ومراقبة التبرعات بمطابقة 100%.
           </p>
         </div>
         <button
-          onClick={() => setShowAddForm(!showAddForm)}
+          onClick={() => navigate(showAddForm ? "/infrastructure" : "/infrastructure/new")}
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap border border-indigo-500/20"
         >
           <span>➕</span>
-          <span>إضافة مسجد / بئر / مشروع تنموي</span>
+          <span>إضافة بئر / سكن / مشروع تنموي</span>
         </button>
       </div>
 
@@ -165,7 +163,7 @@ export default function InfrastructurePortal({
           <div className="flex items-center justify-between border-b pb-3 border-indigo-50">
             <h3 className="font-black text-indigo-950 text-sm">تسجيل مقترح منشأة تنموية جديدة بليبيا</h3>
             <button 
-              onClick={() => setShowAddForm(false)} 
+              onClick={() => navigate("/infrastructure")} 
               className="text-xs text-gray-400 hover:text-rose-600 font-bold cursor-pointer"
             >
               إغلاق
@@ -183,7 +181,7 @@ export default function InfrastructurePortal({
                   <label className="text-xs font-bold text-gray-700">عنوان المشروع / المنشأة المقترحة*</label>
                   <input
                     type="text"
-                    placeholder="مثال: مسجد الفرقان الكبير أو حفر بئر التضامن العميق"
+                    placeholder="مثال: حفر بئر التضامن العميق أو ترميم منزل"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-right"
@@ -198,9 +196,6 @@ export default function InfrastructurePortal({
                     onChange={(e) => setCategory(e.target.value as any)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-right font-bold text-indigo-950"
                   >
-                    <option value="school">مدرسة تعليمية أساسية / ثانوية</option>
-                    <option value="hospital">مستشفى عام / قسم طوارئ تخصصي</option>
-                    <option value="mosque">مسجد / مركز تحفيظ وعلوم شرعية</option>
                     <option value="well">بئر مياه عميق لبلدية عطشى</option>
                     <option value="orphan_care">دار رعاية أيتام ونقاهة أسرية</option>
                     <option value="housing">ترميم مجمع سكني عائلي متهالك</option>
@@ -254,7 +249,7 @@ export default function InfrastructurePortal({
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
-                  onClick={() => setShowAddForm(false)}
+                  onClick={() => navigate("/infrastructure")}
                   className="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold px-4 py-2 rounded-xl cursor-pointer"
                 >
                   إلغاء
@@ -277,9 +272,6 @@ export default function InfrastructurePortal({
       <div className="bg-white border border-[#E5E3DA] rounded-2xl p-4 flex flex-wrap gap-2 justify-start flex-row-reverse">
         {[
           { code: "all", label: "الكل 📁" },
-          { code: "school", label: "مدارس 🏫" },
-          { code: "hospital", label: "مستشفيات 🏥" },
-          { code: "mosque", label: "مساجد 🕌" },
           { code: "well", label: "آبار مياه 💧" },
           { code: "orphan_care", label: "أيتام 🧒" },
           { code: "housing", label: "ترميم مساكن 🏠" }
@@ -462,7 +454,7 @@ export default function InfrastructurePortal({
                         }}
                         className="w-full py-2 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-[11px] font-extrabold rounded-xl transition-colors cursor-pointer text-center"
                       >
-                        🪙 ساهم بدعم التجهيز الآن
+                        <Coins className="w-3 h-3 inline ml-1" /> ساهم بدعم التجهيز الآن
                       </button>
 
                       <div className="flex items-center justify-between mt-1">

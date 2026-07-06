@@ -214,6 +214,37 @@
       "longitude": 12.478,
       "createdAt": "2026-06-07T13:13:13.547Z",
       "closedAt": "2026-06-27T13:13:13.547Z"
+    },
+    {
+      "id": "case-1783244262975",
+      "caseNumber": "LY-2026-0005",
+      "userId": "2",
+      "family": {
+        "totalMembers": 5,
+        "childrenCount": 3,
+        "elderlyCount": 0,
+        "disabledCount": 0,
+        "monthlyIncome": 1000,
+        "rentAmount": 500,
+        "housingCondition": "متوسط",
+        "evictionRisk": false,
+        "maritalStatus": "متزوج",
+        "chronicIllnesses": false,
+        "incomeSources": []
+      },
+      "needTypes": [
+        "غذاء"
+      ],
+      "description": "حاجة ماسة",
+      "amountRequired": 500,
+      "amountCollected": 0,
+      "needScore": 42,
+      "priorityLevel": "متوسط",
+      "status": "submitted",
+      "municipality": "صبراتة",
+      "latitude": 32.787347568811704,
+      "longitude": 12.470305803322658,
+      "createdAt": "2026-07-05T09:37:42.975Z"
     }
   ],
   "projects": [
@@ -340,7 +371,7 @@
   "skills": [],
   "reports": [],
   "userPasswords": {
-    "hosam.fono": "$2b$10$8a7iiQVbjqqk.ds3Qpvm1OQPmRd.OASGNxiFk.Dw4Z4dtY7dRtnhG",
+    "hosam.fono": "$2b$10$EwU6YmLrKHQg5ldvpnBwteVGeO3Na.iO.MGS4LgF1U8lWPDUUz7Mu",
     "admin@takaful.ly": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
     "citizen1@takaful.ly": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
     "researcher1@takaful.ly": "8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92",
@@ -449,5 +480,11 @@
       "donations": true,
       "soundEnabled": true
     }
+  },
+  "featureFlags": {
+    "module_map": true,
+    "module_reports": true,
+    "module_projects": true,
+    "module_charity": true
   }
 }

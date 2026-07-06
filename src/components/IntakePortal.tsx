@@ -9,6 +9,7 @@ import { encryptValue } from "../utils/crypto";
 const fetch = customFetch;
 
 interface IntakePortalProps {
+  view?: "list" | "new" | "details";
   user: User | null;
   cases: Case[];
   onRegisterCase: (caseData: any) => Promise<void>;
@@ -17,6 +18,7 @@ interface IntakePortalProps {
   onUpdateCase?: (caseId: string, updatedFields: any) => Promise<void>;
 }
 
+import { useNavigate, useParams } from "react-router-dom";
 export default function IntakePortal({
   user,
   cases,
@@ -24,12 +26,88 @@ export default function IntakePortal({
   onUpdateFamily,
   onDeleteCase,
   onUpdateCase,
+  view = "list"
 }: IntakePortalProps) {
+  const navigate = useNavigate();
+  const { id: routeCaseId } = useParams();
   // Sub-tab navigation state
-  const [subTab, setSubTab] = useState<"register" | "manage">("manage");
+  const subTab = view === "new" ? "register" : "manage";
 
   // If user is a logged-in citizen, show their dedicated citizen portal
   const isCitizen = user?.role === "citizen";
+  if (view === "details" && routeCaseId) {
+    const caseDetails = cases.find(c => c.id === routeCaseId);
+    if (!caseDetails) return <div className="p-8 text-center text-rose-500 font-bold">الحالة غير موجودة</div>;
+    return (
+      <div className="max-w-5xl mx-auto space-y-6 text-right animate-fade-in">
+        <div className="flex items-center justify-between">
+          <button onClick={() => navigate("/cases")} className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl transition-colors font-bold text-xs flex items-center gap-2">
+            <ArrowLeft className="w-4 h-4" /> العودة للقائمة
+          </button>
+          <h2 className="text-2xl font-black text-slate-900">الملف التفصيلي: {caseDetails.caseNumber}</h2>
+        </div>
+        <div className="bg-white border border-[#E5E3DA] p-8 rounded-3xl shadow-sm space-y-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg text-slate-800 border-b pb-2">بيانات المستفيد</h3>
+              <div className="space-y-3 text-sm">
+                <p><span className="text-slate-500 ml-2">الاسم:</span> <strong className="text-slate-900">{(caseDetails as any).headOfHouseholdName || "غير متوفر"}</strong></p>
+                <p><span className="text-slate-500 ml-2">الرقم الوطني:</span> <strong className="text-slate-900 font-mono">{(caseDetails as any).nationalId || "غير متوفر"}</strong></p>
+                <p><span className="text-slate-500 ml-2">الهاتف:</span> <strong className="text-slate-900 font-mono">{(caseDetails as any).phone || "غير متوفر" || "لا يوجد"}</strong></p>
+                <p><span className="text-slate-500 ml-2">البلدية:</span> <strong className="text-slate-900">{caseDetails.municipality}</strong></p>
+                <p><span className="text-slate-500 ml-2">النقاط:</span> <strong className="text-emerald-700 font-black">{caseDetails.needScore}</strong></p>
+              </div>
+            </div>
+            <div className="space-y-4">
+              <h3 className="font-bold text-lg text-slate-800 border-b pb-2">موقف الحالة</h3>
+              <div className="space-y-3 text-sm">
+                <p>
+                  <span className="text-slate-500 ml-2">الحالة الحالية:</span> 
+                  <span className={`px-2 py-1 rounded text-xs font-bold ${caseDetails.status === "committee_approved" ? "bg-emerald-100 text-emerald-700" : caseDetails.status === "published" || caseDetails.status === "funded" ? "bg-blue-100 text-blue-700" : "bg-amber-100 text-amber-700"}`}>
+                    {caseDetails.status === "under_review" ? "قيد الدراسة" : caseDetails.status === "committee_approved" ? "معتمدة وجاهزة" : "نشطة ومدعومة"}
+                  </span>
+                </p>
+                <p><span className="text-slate-500 ml-2">تاريخ الإدراج:</span> <strong className="text-slate-900 font-mono">{new Date(caseDetails.createdAt).toLocaleDateString("ar-SA")}</strong></p>
+                <p><span className="text-slate-500 ml-2">أولوية الملف:</span> <strong className="text-slate-900">{caseDetails.priorityLevel}</strong></p>
+                <p><span className="text-slate-500 ml-2">قيمة الاحتياج:</span> <strong className="text-rose-600 font-black">{caseDetails.amountRequired.toLocaleString()} د.ل</strong></p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-4">
+            <h3 className="font-bold text-lg text-slate-800 border-b pb-2">ملف العائلة (Family Composition)</h3>
+            {caseDetails.family && (caseDetails.family as any)?.members?.length > 0 ? (
+              <div className="overflow-x-auto">
+                <table className="w-full text-right text-sm">
+                  <thead className="bg-slate-50 border-b border-slate-100">
+                    <tr>
+                      <th className="p-3 font-bold text-slate-600">الاسم</th>
+                      <th className="p-3 font-bold text-slate-600">القرابة</th>
+                      <th className="p-3 font-bold text-slate-600">الرقم الوطني</th>
+                      <th className="p-3 font-bold text-slate-600">تاريخ الميلاد</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {(caseDetails.family as any)?.members?.map((m, idx) => (
+                      <tr key={idx}>
+                        <td className="p-3 font-bold">{m.name}</td>
+                        <td className="p-3">{m.relationship}</td>
+                        <td className="p-3 font-mono text-slate-500">{m.nationalId}</td>
+                        <td className="p-3 font-mono text-slate-500">{m.birthDate}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            ) : (
+              <div className="p-4 text-slate-500 bg-slate-50 rounded-xl text-center text-sm">لا يوجد أفراد مسجلين في دفتر العائلة.</div>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+  
   const citizenCase = cases.find((c) => c.userId === user?.id) || null;
 
   if (isCitizen && user) {
@@ -323,7 +401,7 @@ export default function IntakePortal({
         setSubmitSuccess(caseData as any);
         localStorage.removeItem("takaful_intake_draft");
         setStep(4);
-        setSubTab("manage");
+        navigate("/intake");
         alert("تم الحفظ محلياً. سيتم المزامنة عند الاتصال بالإنترنت.");
       } else {
         const res = await fetch("/api/cases", {
@@ -337,7 +415,7 @@ export default function IntakePortal({
           localStorage.removeItem("takaful_intake_draft");
           await onRegisterCase(caseData);
           setStep(4);
-          setSubTab("manage");
+          navigate("/intake");
         } else {
           alert("حدث خطأ أثناء حفظ الملف بالمنظومة الوطنية.");
         }
@@ -354,7 +432,7 @@ export default function IntakePortal({
       setSubmitSuccess(caseData as any);
       localStorage.removeItem("takaful_intake_draft");
       setStep(4);
-      setSubTab("manage");
+      navigate("/intake");
       alert("فشل الاتصال بالمنظومة. تم الحفظ محلياً وسيتم المزامنة لاحقاً.");
     } finally {
       setIsSubmitting(false);
@@ -416,31 +494,7 @@ export default function IntakePortal({
         </div>
       </div>
 
-      {/* Sub tabs switcher for high usability */}
-      <div className="flex justify-start border-b border-[#E5E3DA] gap-2 p-1 bg-slate-100 rounded-2xl w-fit">
-        <button
-          onClick={() => setSubTab("manage")}
-          className={`px-6 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
-            subTab === "manage"
-              ? "bg-[#0F6E56] text-white shadow-md shadow-emerald-800/10"
-              : "text-gray-600 hover:bg-slate-200"
-          }`}
-        >
-          <span>👨‍👩‍👧</span>
-          <span>عرض وتخصيص بملفات المستفيدين ({cases.length})</span>
-        </button>
-        <button
-          onClick={() => { setSubTab("register"); setStep(1); }}
-          className={`px-6 py-2.5 rounded-xl text-xs font-extrabold transition-all cursor-pointer flex items-center gap-2 ${
-            subTab === "register"
-              ? "bg-[#0F6E56] text-white shadow-md shadow-emerald-800/10"
-              : "text-gray-600 hover:bg-slate-200"
-          }`}
-        >
-          <Plus className="w-4 h-4" />
-          <span>إدراج مستفيد جديد بالسجل الوطني</span>
-        </button>
-      </div>
+      
 
       {/* RENDER VIEW/MANAGE TAB */}
       {subTab === "manage" && (
@@ -1146,7 +1200,7 @@ export default function IntakePortal({
                 setFullName("");
                 setPhone("");
                 setSubmitSuccess(null);
-                setSubTab("manage");
+                navigate("/intake");
               }}
               className="bg-[#0F6E56] hover:opacity-90 text-white font-bold px-6 py-2.5 rounded-xl text-xs transition-colors cursor-pointer"
             >

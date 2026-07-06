@@ -572,7 +572,7 @@ export default function ResearcherPortal({
         <div class="header">
           <div>
             <div class="logo-text">جمهورية ليبيا</div>
-            <div class="sub-logo">الهيئة الوطنية لإدارة أموال الزكاة والتكافل</div>
+            <div class="sub-logo">الهيئة الوطنية لإدارة أموال التبرعات والتكافل</div>
           </div>
           <div style="text-align: left;">
             <div style="font-weight: bold; color: #0f6e56;">السجل الوطني الموحد</div>

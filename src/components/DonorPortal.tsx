@@ -2,11 +2,10 @@ import React, { useState, useEffect } from "react";
 import { Case, MajorProject, OmniTransaction, User, SkillOffering } from "../types";
 import { translations, Language } from "../translations";
 import ImpactLeaderboard from "./ImpactLeaderboard";
-import LibyaInteractiveMap from "./LibyaInteractiveMap";
+import LibyaLeafletMap from "./LibyaLeafletMap";
 import GISHeatmap from "./GISHeatmap";
 import OngoingCharityTracker from "./OngoingCharityTracker";
 import { Trophy, Medal, Award, Heart, Sparkles, TrendingUp, Target, Edit2, Share2, Download, CheckCircle, Copy } from "lucide-react";
-import html2canvas from "html2canvas";
 import { customFetch } from "../utils/api";
 import { triggerHaptic } from "../utils/haptics";
 
@@ -344,24 +343,18 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
               };
 
               const handleShareImage = async () => {
-                const el = document.getElementById("impact-summary-card");
-                if (!el) return;
-                setIsGeneratingImage(true);
-                // Give React a moment to render any loading states if needed
-                setTimeout(async () => {
+                if (navigator.share) {
                   try {
-                    const canvas = await html2canvas(el, { scale: 2, backgroundColor: "#ffffff" });
-                    const url = canvas.toDataURL("image/png");
-                    const link = document.createElement("a");
-                    link.download = "my_impact_takaful.png";
-                    link.href = url;
-                    link.click();
-                  } catch(err) {
-                    console.error('Failed to generate image', err);
-                  } finally {
-                    setIsGeneratingImage(false);
+                    await navigator.share({
+                      title: "ملخص الأثر الشخصي",
+                      text: "لقد ساهمت في دعم الحالات الإنسانية. شارك في التكافل الاجتماعي!",
+                    });
+                  } catch (err) {
+                    console.error('Share failed', err);
                   }
-                }, 100);
+                } else {
+                  alert("ميزة المشاركة غير مدعومة في متصفحك.");
+                }
               };
 
               return (
@@ -670,7 +663,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
               إذا لم ترغب في تحديد حالة معينة، يمكنك توجيه تبرعك لأحد الصناديق الشرعية ليتم توزيعها حسب الأولويات.
             </p>
             <div className="space-y-2">
-              {["زكاة", "صدقة", "كفالة_يتيم", "صدقة_جارية", "طوارئ"].map((fund) => (
+              {["صدقة", "كفالة_يتيم", "صدقة_جارية", "طوارئ"].map((fund) => (
                 <button
                   key={fund}
                   onClick={() => {
@@ -730,7 +723,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
         <div className="lg:col-span-3 space-y-8">
           
           {/* Interactive GIS Case Map across Libya */}
-          <LibyaInteractiveMap
+          <LibyaLeafletMap
             cases={cases}
             lang={lang}
             onDonateDirect={(caseId, amount) => handleProcessDirectDonation(caseId, null, null, amount)}
@@ -768,7 +761,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                     )}
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <span className="text-[9px] uppercase font-bold text-sky-600 font-mono">{p.projectNumber} | {p.category === "well" ? "بئر ماء" : p.category === "mosque" ? "مسجد" : "رعاية أيتام"}</span>
+                        <span className="text-[9px] uppercase font-bold text-sky-600 font-mono">{p.projectNumber} | {p.category === "well" ? "بئر ماء" : "رعاية أيتام"}</span>
                         <h5 className="font-bold text-sm text-gray-900 mt-1 mb-2 line-clamp-1">{p.title}</h5>
                         <p className="text-xs text-gray-500 line-clamp-2 mb-3">{p.description}</p>
                       </div>
@@ -1169,8 +1162,8 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                     { key: "sadad", label: lang === "ar" ? "سداد المدار" : "Sadad (Al-Madar)", icon: "📱", group: "local" },
                     { key: "mobicash", label: lang === "ar" ? "موبي كاش" : "MobiCash (LTT)", icon: "💸", group: "local" },
                     { key: "stripe", label: lang === "ar" ? "بطاقة دفع / Stripe" : "Card / Stripe", icon: "💳", group: "global" },
-                    { key: "applepay", label: "Apple / Google Pay", icon: "", group: "global" },
-                    { key: "binance", label: "USDT-TRC20 Crypto", icon: "🪙", group: "crypto" },
+                    { key: "applepay", label: "Apple / Google Pay", icon: "🍏", group: "global" },
+                    { key: "binance", label: "USDT-TRC20 Crypto", icon: "💎", group: "crypto" },
                   ].map((pm) => (
                     <button
                       type="button"
@@ -1416,7 +1409,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                 {paymentMethod === "applepay" && (
                   <div className="space-y-4 text-center">
                     <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-2 text-right flex items-center justify-end gap-1.5 flex-row-reverse">
-                      <span></span>
+                      <span>🍏</span>
                       <span>Biometric Wallet Authentication (Apple / Google Pay)</span>
                     </h4>
 
@@ -1461,7 +1454,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                           </>
                         ) : (
                           <>
-                            <span className="text-base"></span>
+                            <span className="text-base">🍏</span>
                             <span>{lang === "ar" ? "تبرع بنقرة واحدة" : "Pay with Apple Pay"}</span>
                           </>
                         )}
@@ -1482,7 +1475,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                 {paymentMethod === "binance" && (
                   <div className="space-y-4">
                     <h4 className="font-bold text-slate-800 border-b border-slate-200 pb-2 flex items-center gap-1.5 flex-row-reverse">
-                      <span>🪙</span>
+                      <span>💎</span>
                       <span>Tether TRC-20 Smart Contract & Binance Checkout</span>
                     </h4>
 

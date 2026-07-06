@@ -1,17 +1,19 @@
 import React, { useState, useEffect } from "react";
+import ImageGenerator from "./ImageGenerator";
 import { Case, MajorProject, OmniTransaction, LedgerEntry, Fund, User, CommunityReport, UserRole } from "../types";
 import GISHeatmap from "./GISHeatmap";
 import AdminCharts from "./AdminCharts";
 import GoogleChatWidget from "./GoogleChatWidget";
 import ProjectTimeline from "./ProjectTimeline";
 import { Lock, Radio, Send, MapPin, AlertTriangle, History, ShieldAlert, Check, Navigation, Truck, UserCheck, Compass, Bell, Volume2, Clock, CheckCircle2 } from "lucide-react";
-import AdvancedAdmin from "./AdvancedAdmin";
 import { customFetch } from "../utils/api";
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } from "recharts";
 
 const fetch = customFetch;
 
+import { useNavigate } from "react-router-dom";
 interface AdminPortalProps {
+  view?: "cases" | "projects" | "geosos" | "funds" | "dashboard";
   user: User;
   cases: Case[];
   projects: MajorProject[];
@@ -65,7 +67,7 @@ export default function AdminPortal({
   const [isSubmittingReject, setIsSubmittingReject] = useState(false);
 
   // Admin Portal sub-tabs
-  const [adminTab, setAdminTab] = useState<"dashboard" | "approvals" | "auditors" | "integrity" | "ledger">("dashboard");
+  const [adminTab, setAdminTab] = useState("dashboard");
   const [biInsights, setBiInsights] = useState<{type: string; message: string}[]>([]);
   useEffect(() => {
     if (adminTab === "dashboard") {
@@ -652,8 +654,20 @@ export default function AdminPortal({
           </p>
         </div>
 
+        
         {/* Dynamic Sub-Tabs bar */}
         <div className="flex flex-wrap gap-1.5 bg-slate-100 p-1 rounded-2xl">
+          <button
+            onClick={() => setAdminTab("ai")}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+              adminTab === "ai"
+                ? "bg-indigo-600 text-white shadow-sm"
+                : "text-indigo-600 hover:text-indigo-900 bg-indigo-50"
+            }`}
+          >
+            ✨ توليد الصور والمحتوى
+          </button>
+
           <button
             onClick={() => setAdminTab("dashboard")}
             className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
@@ -666,7 +680,7 @@ export default function AdminPortal({
           </button>
           {hasPermission("approve_cases") ? (
             <button
-              onClick={() => setAdminTab("approvals")}
+              onClick={() => setAdminTab("dashboard")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 adminTab === "approvals"
                   ? "bg-slate-950 text-white shadow-sm"
@@ -687,7 +701,7 @@ export default function AdminPortal({
 
           {hasPermission("audit_users") ? (
             <button
-              onClick={() => setAdminTab("auditors")}
+              onClick={() => setAdminTab("dashboard")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 adminTab === "auditors"
                   ? "bg-slate-950 text-white shadow-sm"
@@ -708,7 +722,7 @@ export default function AdminPortal({
 
           {hasPermission("send_sos") ? (
             <button
-              onClick={() => setAdminTab("integrity")}
+              onClick={() => setAdminTab("dashboard")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 adminTab === "integrity"
                   ? "bg-slate-950 text-white shadow-sm"
@@ -729,7 +743,7 @@ export default function AdminPortal({
 
           {hasPermission("view_ledger") ? (
             <button
-              onClick={() => setAdminTab("ledger")}
+              onClick={() => setAdminTab("dashboard")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 adminTab === "ledger"
                   ? "bg-slate-950 text-white shadow-sm"
@@ -751,7 +765,15 @@ export default function AdminPortal({
       </div>
 
       {/* ==================== TAB 1: DASHBOARD ==================== */}
+      
+      {adminTab === "ai" && (
+        <div className="max-w-4xl mx-auto mt-8 animate-fade-in">
+          <ImageGenerator />
+        </div>
+      )}
+
       {adminTab === "dashboard" && (
+
         <div className="space-y-8 animate-fade-in">
           {/* Upper KPIs Row */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -1220,7 +1242,7 @@ export default function AdminPortal({
                 <span className="text-purple-600">🏗️</span>
                 <span>طلبات المشاريع البنيوية المقترحة (بانتظار التدقيق والاعتماد المالي)</span>
               </h3>
-              <p className="text-xs text-gray-500 text-right">مراجعة وتعديل الميزانية المطلوبة للمشاريع التضامنية (مساجد، آبار، مدارس، مرافق عامة) قبل إطلاقها للتبرع</p>
+              <p className="text-xs text-gray-500 text-right">مراجعة وتعديل الميزانية المطلوبة للمشاريع التضامنية (آبار، إسكان، مشاريع تنموية) قبل إطلاقها للتبرع</p>
             </div>
 
             {pendingProjects.length === 0 ? (
@@ -1237,7 +1259,7 @@ export default function AdminPortal({
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-mono font-bold text-purple-700">{p.projectNumber || "مشروع جديد"}</span>
                         <span className="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px]">
-                          البلدية: {p.municipality} | نوع: {p.category === "well" ? "بئر مياه" : p.category === "mosque" ? "مسجد عتيق" : p.category === "school" ? "مدرسة" : "مرفق تضامني"}
+                          البلدية: {p.municipality} | نوع: {p.category === "well" ? "بئر مياه" : "بنية تحتية"}
                         </span>
                       </div>
 
@@ -1649,7 +1671,8 @@ export default function AdminPortal({
                       </form>
                     </div>
                   )}
-                </>
+                
+              </>
               )}
             </div>
 
@@ -1855,8 +1878,8 @@ export default function AdminPortal({
                                       <ShieldAlert className="w-3 h-3 text-rose-500" />
                                       محظور نهائياً
                                     </span>
-                                  ) : (
-                                    <>
+                                  ) : (<>
+                                    
                                       <button
                                         onClick={() => handleToggleAdminStatus(u.id)}
                                         className={`px-2 py-1 rounded-lg text-[10px] font-bold cursor-pointer transition-colors ${
@@ -1878,7 +1901,7 @@ export default function AdminPortal({
                                           حظر نهائي
                                         </button>
                                       )}
-                                    </>
+                                  </>
                                   )}
                                 </div>
                               )}
@@ -1934,7 +1957,9 @@ export default function AdminPortal({
 
         return (
           <div className="space-y-8 animate-fade-in text-right">
-            {/* Geo-SOS Emergency Geographic Broadcast System */}
+            
+        
+          {/* Geo-SOS Emergency Geographic Broadcast System */}
             <div className="bg-white border border-[#E5E3DA] rounded-2xl p-6 shadow-sm space-y-6 text-right" id="geosos-broadcast-panel">
               <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 pb-4 border-b border-[#E5E3DA]">
                 <div className="space-y-1">
@@ -2389,7 +2414,7 @@ export default function AdminPortal({
                 <div className="bg-white border border-dashed border-[#E5E3DA] p-2.5 rounded-lg text-[10px] text-slate-400 flex items-center gap-1.5 mt-3">
                   <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0 animate-pulse" />
                   <span>
-                    نظام SOS التابع لمنصة التكافل مشفر ومربوط بنظام الإحداثيات الموحد (GIS) بوزارة الشؤون الاجتماعية.
+                    نظام SOS التابع لمنصة التكافل مشفر ومربوط بنظام الإحداثيات الموحد (GIS) .
                   </span>
                 </div>
               </div>
@@ -2661,7 +2686,6 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {funds.map((f) => {
                   const fundNames = {
-                    "زكاة": "صندوق الزكاة الشرعي",
                     "صدقة": "صندوق الصدقات العامة",
                     "كفالة_يتيم": "صندوق كفالة الأيتام",
                     "صدقة_جارية": "صندوق الصدقة الجارية",
@@ -2681,42 +2705,7 @@ export default function AdminPortal({
               </div>
             </div>
 
-            {/* Central registry of verified users */}
-            <div className="bg-white border border-[#E5E3DA] p-6 rounded-2xl shadow-sm space-y-4">
-              <div>
-                <h3 className="text-base font-bold text-gray-900">سجل المستخدمين المعتمدين</h3>
-                <p className="text-xs text-gray-500 font-mono">السجل الوطني الموحد للمحتاجين والجهات الشريكة</p>
-              </div>
-
-              <div className="space-y-3 divide-y divide-slate-100 max-h-[160px] overflow-y-auto pr-1">
-                {users.map((u) => (
-                  <div key={u.id} className="pt-2 text-xs flex justify-between items-center">
-                    <div>
-                      <p className="font-bold text-gray-800">{u.fullName}</p>
-                      <p className="text-[10px] text-gray-400">{u.email}</p>
-                    </div>
-                    <span className={`text-[9px] px-2 py-0.5 rounded font-bold ${
-                      u.role === "admin" 
-                        ? "bg-purple-100 text-purple-700" 
-                        : u.role === "researcher" 
-                        ? "bg-amber-100 text-amber-700"
-                        : u.role === "charity"
-                        ? "bg-blue-100 text-blue-700"
-                        : "bg-slate-100 text-slate-600"
-                    }`}>
-                      {u.role === "admin" ? "إدارة" : u.role === "researcher" ? "باحث" : u.role === "charity" ? "جمعية" : u.role === "donor" ? "متبرع" : "مواطن"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Advanced Admin controls (Feature Flags + Ban/Delete users) */}
-            {(user.isSuperAdmin || user.email === "hosam.fono" || user.id === "super-admin") && (
-              <AdvancedAdmin users={users} onRefresh={() => onRefresh && onRefresh()} />
-            )}
-
-          </div>
+                      </div>
         </div>
       )}
 

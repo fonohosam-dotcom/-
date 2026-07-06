@@ -9,7 +9,7 @@ import "leaflet.markercluster/dist/MarkerCluster.css";
 import "leaflet.markercluster/dist/MarkerCluster.Default.css";
 import "leaflet.heat";
 
-interface LibyaInteractiveMapProps {
+interface LibyaLeafletMapProps {
   cases: Case[];
   projects?: MajorProject[];
   charities?: User[];
@@ -63,7 +63,7 @@ export default function LibyaLeafletMap({
   showEmergency = true,
   showProjects = true,
   showCharities = true
-}: LibyaInteractiveMapProps) {
+}: LibyaLeafletMapProps) {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<Record<string, L.Marker>>({});
@@ -77,8 +77,33 @@ export default function LibyaLeafletMap({
   const [heatmapMode, setHeatmapMode] = useState(false);
   const [activeCase, setActiveCase] = useState<Case | null>(null);
   const [donationModalCase, setDonationModalCase] = useState<{ id: string, amount: string } | null>(null);
+  const [mapDimensions, setMapDimensions] = useState({ width: 0, height: 0 });
 
   const isAr = lang === "ar";
+
+  useEffect(() => {
+    if (!mapContainerRef.current) return;
+    const observer = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const width = entry.contentRect.width;
+        const height = entry.contentRect.height;
+        
+        setMapDimensions({ width, height });
+        
+        if (mapRef.current) {
+          // If size is 0, don't invalidate size yet, or remove heat layer first
+          if (width === 0 || height === 0) {
+            if (heatLayerRef.current && mapRef.current.hasLayer(heatLayerRef.current)) {
+              mapRef.current.removeLayer(heatLayerRef.current);
+            }
+          }
+          mapRef.current.invalidateSize();
+        }
+      }
+    });
+    observer.observe(mapContainerRef.current);
+    return () => observer.disconnect();
+  }, []);
 
   useEffect(() => {
     const handleOpenModal = (e: Event) => {
@@ -125,6 +150,7 @@ export default function LibyaLeafletMap({
     if (!mapRef.current) {
       mapRef.current = L.map(mapContainerRef.current, {
         zoomControl: false,
+        trackResize: false,
         attributionControl: false
       }).setView([defaultCoordinates.lat, defaultCoordinates.lng], 5.5);
 
@@ -343,17 +369,19 @@ export default function LibyaLeafletMap({
     }
 
     if (heatmapMode && (L as any).heatLayer) {
-      heatLayerRef.current = (L as any).heatLayer(heatPoints, {
-        radius: 25,
-        blur: 15,
-        maxZoom: 10,
-        gradient: {
-          0.4: '#10b981', // emerald-500
-          0.6: '#f59e0b', // amber-500
-          0.8: '#ef4444', // red-500
-          1.0: '#9f1239'  // rose-800
-        }
-      }).addTo(map);
+      if (mapDimensions.width > 0 && mapDimensions.height > 0) {
+        heatLayerRef.current = (L as any).heatLayer(heatPoints, {
+          radius: 25,
+          blur: 15,
+          maxZoom: 10,
+          gradient: {
+            0.4: '#10b981', // emerald-500
+            0.6: '#f59e0b', // amber-500
+            0.8: '#ef4444', // red-500
+            1.0: '#9f1239'  // rose-800
+          }
+        }).addTo(map);
+      }
     } else {
       map.addLayer(clusterGroupRef.current);
     }
@@ -367,7 +395,7 @@ export default function LibyaLeafletMap({
       map.setView([defaultCoordinates.lat, defaultCoordinates.lng], 5.5);
     }
 
-  }, [filteredCases.length, isAr, heatmapMode, showEmergency, showProjects, showCharities, projects, charities]);
+  }, [filteredCases.length, isAr, heatmapMode, showEmergency, showProjects, showCharities, projects, charities, mapDimensions.width, mapDimensions.height]);
 
   const handleZoomIn = () => mapRef.current?.zoomIn();
   const handleZoomOut = () => mapRef.current?.zoomOut();
@@ -436,8 +464,8 @@ export default function LibyaLeafletMap({
 
       <div className="flex-1 flex overflow-hidden relative">
         <div 
-          className={`bg-white border-l border-[#E5E3DA] w-76 flex flex-col justify-between shrink-0 transition-all duration-300 z-10 relative ${
-            sidebarOpen ? "translate-x-0" : isAr ? "translate-x-full w-0 overflow-hidden border-none" : "-translate-x-full w-0 overflow-hidden border-none"
+          className={`bg-white border-[#E5E3DA] flex flex-col justify-between shrink-0 transition-all duration-300 z-10 relative ${
+            sidebarOpen ? "w-[300px] border-l translate-x-0" : "w-0 overflow-hidden border-none"
           }`}
           style={{ order: isAr ? 1 : 0 }}
         >

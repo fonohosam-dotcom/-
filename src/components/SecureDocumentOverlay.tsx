@@ -38,7 +38,7 @@ export default function SecureDocumentOverlay({ user, document, caseNumber }: Se
       const texts = [
         "جاري تفعيل مصفوفة فك التشفير...",
         "جاري قراءة المفتاح الرقمي للباحث...",
-        "جاري فحص شهادة الأمان الحكومية...",
+        "جاري فحص شهادة الأمان ...",
         "مطابقة الهوية مع السجل الوطني..."
       ];
       let i = 0;
@@ -132,12 +132,12 @@ export default function SecureDocumentOverlay({ user, document, caseNumber }: Se
             <div className="absolute -top-12 -left-12 w-28 h-28 bg-rose-500/10 rounded-full blur-2xl"></div>
             <div className="flex justify-between items-start flex-row-reverse">
               <span className="text-[9px] bg-rose-600 text-white font-bold px-2 py-0.5 rounded">التقرير الطبي</span>
-              <span className="text-[10px] font-mono font-bold text-rose-800 dark:text-rose-400">وزارة الصحة</span>
+              <span className="text-[10px] font-mono font-bold text-rose-800 dark:text-rose-400">مركز طبي</span>
             </div>
             <div className="space-y-1">
               <span className="text-[10px] text-gray-400 block font-bold">شهادة اللياقة وتوصيف العجز:</span>
               <p className="text-xs font-black text-slate-800 dark:text-gray-100">إثبات الحالة الصحية المزمنة</p>
-              <p className="text-[10px] text-rose-600 font-bold">صادر عن مستشفى صبراتة التعليمي</p>
+              <p className="text-[10px] text-rose-600 font-bold">صادر عن عيادة طبية</p>
             </div>
             <div className="border-t border-rose-500/20 pt-2 flex justify-between flex-row-reverse text-[9px] font-mono">
               <span className="text-rose-800 dark:text-rose-400 font-bold">رقم الأرشيف: {document.officialSealCode}</span>

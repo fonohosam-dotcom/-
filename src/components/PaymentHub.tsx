@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { CreditCard, Coins, Check, ShieldCheck, ArrowRight, RefreshCw, Smartphone, QrCode } from "lucide-react";
-import CryptoWalletIntegrator from "./CryptoWalletIntegrator";
 import Web3WalletConnector from "./Web3WalletConnector";
 
 interface PaymentHubProps {
@@ -77,7 +76,7 @@ export default function PaymentHub({ lang, onDonateSuccess }: PaymentHubProps) {
     setIsProcessing(true);
     
     let currentConf = 0;
-    if (paymentType === "crypto") {
+    if (paymentType === "web3") {
       const interval = setInterval(() => {
         currentConf += 2;
         setConfirmations(currentConf);
@@ -215,7 +214,7 @@ export default function PaymentHub({ lang, onDonateSuccess }: PaymentHubProps) {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 text-right">
           
           {/* Left Column: Input Panel & Selection */}
-          <div className={`${paymentType === "crypto" || paymentType === "web3" ? "lg:col-span-12" : "lg:col-span-7"} space-y-6`}>
+          <div className={`${paymentType === "web3" || paymentType === "web3" ? "lg:col-span-12" : "lg:col-span-7"} space-y-6`}>
             
             {/* 1. Select Beneficiary Fund */}
             <div className="space-y-3">
@@ -594,15 +593,7 @@ export default function PaymentHub({ lang, onDonateSuccess }: PaymentHubProps) {
               )}
 
               {/* CRYPTO PAYMENTS */}
-              {paymentType === "crypto" && (
-                <CryptoWalletIntegrator
-                  amountLyd={amount}
-                  selectedFund={selectedFund}
-                  lang={lang}
-                  onDonateSuccess={onDonateSuccess}
-                  rates={rates}
-                />
-              )}
+              
 
               {/* WEB3 WALLET */}
               {paymentType === "web3" && (
@@ -672,7 +663,7 @@ export default function PaymentHub({ lang, onDonateSuccess }: PaymentHubProps) {
                 <p className="text-[10px] text-gray-500 leading-relaxed text-right">
                   سيقوم النظام فور نقرك على زر التأكيد أدناه بإجراء قيد محاسبي مزدوج حقيقي: الخصم من حسابك المالي المختار (Debit) وتوجيهه فوراً لقيد حساب المستفيد المقابل (Credit) مع تجريد المعاملة لضمان الشفافية.
                 </p>
-                {paymentType === "crypto" && (
+                {paymentType === "web3" && (
                   <div className="bg-yellow-50 border border-yellow-200/50 p-2.5 rounded-xl text-[9px] text-yellow-800 leading-normal">
                     ⏳ يتطلب التحويل على شبكة TRON نحو 12 تأكيداً للكتلة. سيقوم النظام بمراقبة العنوان وتحديث قيد الدفتر تلقائياً.
                   </div>
@@ -696,7 +687,7 @@ export default function PaymentHub({ lang, onDonateSuccess }: PaymentHubProps) {
                     <>
                       <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
                       <span>
-                        {paymentType === "crypto" 
+                        {paymentType === "web3" 
                           ? `جاري التحقق من الشبكة (${confirmations}/12)...` 
                           : "جاري تأكيد القيد والتسجيل المالي..."}
                       </span>

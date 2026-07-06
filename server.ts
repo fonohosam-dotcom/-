@@ -1,3 +1,10 @@
+import { logger } from "./src/lib/logger.ts";
+
+import authRoutes from "./src/server/routes/auth.js";
+import casesRoutes from "./src/server/routes/cases.js";
+
+import helmet from "helmet";
+import rateLimit from "express-rate-limit";
 import express from "express";
 import { getApps, initializeApp } from "firebase-admin/app";
 import firebaseConfig from "./firebase-applet-config.json" assert { type: "json" };
@@ -11,9 +18,7 @@ import jwt from "jsonwebtoken";
 const JWT_SECRET = process.env.JWT_SECRET || "super-secret-takaful-key";
 import { createServer as createViteServer } from "vite";
 import { GoogleGenAI } from "@google/genai";
-import helmet from "helmet";
 import cors from "cors";
-import rateLimit from "express-rate-limit";
 import { z } from "zod";
 import { 
   User, Case, MajorProject, OmniTransaction, LedgerEntry, Fund, SkillOffering, CommunityReport, Family, AppNotification, NotificationPreferences
@@ -39,6 +44,26 @@ function getGenAI(): GoogleGenAI | null {
 }
 
 const app = express();
+
+// Security Middleware (Zero Trust & WAF basics)
+app.use(helmet({
+  contentSecurityPolicy: false, // Disabling for dev/sandbox
+}));
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: "Too many requests from this IP, please try again later."
+});
+app.use("/api/", limiter);
+
+// app.use("/api/auth", authRoutes);
+// app.use("/api/cases", casesRoutes);
+
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`);
+  next();
+});
 const PORT = 3000;
 
 app.set("trust proxy", 1);
@@ -186,6 +211,10 @@ function hashPassword(password: string): string {
 function verifyPassword(password: string, storedHash: string): boolean {
   if (!storedHash) return false;
   if (storedHash.startsWith("scrypt:")) return true; // Legacy fallback allow
+  if (storedHash.length === 64 && !storedHash.startsWith("$2")) {
+    // SHA256 fallback
+    return crypto.createHash("sha256").update(password).digest("hex") === storedHash;
+  }
   try { return bcrypt.compareSync(password, storedHash); } catch(e) { return false; }
 }
 
@@ -305,6 +334,26 @@ function createInitialState(): AppState {
 }
 
 // -----------------------------------------
+class TransactionManager {
+  private static queue: Promise<any> = Promise.resolve();
+
+  static async withTransaction<T>(operation: (draftState: AppState) => Promise<T> | T): Promise<T> {
+    return new Promise((resolve, reject) => {
+      this.queue = this.queue.then(async () => {
+        const draftState = JSON.parse(JSON.stringify(state));
+        try {
+          const result = await operation(draftState);
+          state = draftState;
+          saveState();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+}
+
 function saveState() {
   try {
     fs.writeFileSync(STATE_FILE, JSON.stringify(state, null, 2), "utf-8");
@@ -645,7 +694,9 @@ const registerSchema = z.object({
 });
 
 // Authentication and Secure Registration
-app.post("/api/auth/register", (req, res) => {
+app.post("/api/auth/register", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const parsed = registerSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ status: "error", message: parsed.error.issues[0].message });
@@ -653,7 +704,7 @@ app.post("/api/auth/register", (req, res) => {
   const { email, password, fullName, phone, role, municipality, nationalId, address } = parsed.data;
 
   const normalizedEmail = email.toLowerCase().trim();
-  const existingUser = state.users.find(u => u.email.toLowerCase() === normalizedEmail);
+  const existingUser = draftState.users.find(u => u.email.toLowerCase() === normalizedEmail);
   if (existingUser) {
     return res.status(400).json({ status: "error", message: "هذا البريد الإلكتروني مسجل مسبقاً" });
   }
@@ -672,11 +723,11 @@ app.post("/api/auth/register", (req, res) => {
   };
 
   // Hash password & store
-  state.users.push(newUser);
-  state.userPasswords[normalizedEmail] = hashPassword(password);
+  draftState.users.push(newUser);
+  draftState.userPasswords[normalizedEmail] = hashPassword(password);
   
   // Set default notification preferences
-  state.notificationPrefs[newUser.id] = {
+  draftState.notificationPrefs[newUser.id] = {
     projectUpdates: true,
     taskAssignments: true,
     mentions: true,
@@ -689,7 +740,7 @@ app.post("/api/auth/register", (req, res) => {
   const token = jwt.sign({ id: newUser.id, email: newUser.email }, JWT_SECRET, { expiresIn: '7d' });
 
   // Trigger system notification
-  state.notifications.unshift({
+  draftState.notifications.unshift({
     id: `notif-${Date.now()}`,
     title: "مرحباً بك في مجتمع التكافل الوطني!",
     message: `تم إنشاء حسابك الجديد بنجاح بصفة (${role === 'citizen' ? 'مواطن مستفيد' : role === 'donor' ? 'متبرع' : role === 'researcher' ? 'باحث ميداني' : 'جمعية خيرية'}). يرجى استكمال ملفك الشخصي.`,
@@ -698,19 +749,23 @@ app.post("/api/auth/register", (req, res) => {
     read: false
   });
 
-  saveState();
+  
   res.json({ status: "success", user: newUser, token });
-});
+
+      });
+    });
 
 // Social Auth Check
-app.post("/api/auth/social-check", (req, res) => {
+app.post("/api/auth/social-check", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { email, fullName } = req.body;
   if (!email) {
     return res.status(400).json({ status: "error", message: "البريد الإلكتروني مطلوب" });
   }
 
   const normalizedEmail = email.toLowerCase().trim();
-  const user = state.users.find(u => u.email.toLowerCase() === normalizedEmail);
+  const user = draftState.users.find(u => u.email.toLowerCase() === normalizedEmail);
 
   if (!user) {
     return res.json({ status: "needs_profile", email: normalizedEmail, fullName });
@@ -718,19 +773,23 @@ app.post("/api/auth/social-check", (req, res) => {
 
   // Generate Session Token
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-  saveState();
+  
 
   res.json({ status: "success", user, token });
-});
+
+      });
+    });
 
 app.post("/api/auth/social-register", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { email, fullName, phone, role, municipality, nationalId, address, isAnonymous, provider, uid } = req.body;
   if (!email || !fullName) {
     return res.status(400).json({ status: "error", message: "البيانات الأساسية مطلوبة" });
   }
 
   const normalizedEmail = email.toLowerCase().trim();
-  if (state.users.some((u) => u.email === normalizedEmail)) {
+  if (draftState.users.some((u) => u.email === normalizedEmail)) {
     return res.status(400).json({ status: "error", message: "البريد الإلكتروني مستخدم بالفعل" });
   }
 
@@ -748,9 +807,9 @@ app.post("/api/auth/social-register", async (req, res) => {
     authProvider: provider || "local"
   };
 
-  state.users.push(user);
+  draftState.users.push(user);
 
-  state.notificationPrefs[user.id] = {
+  draftState.notificationPrefs[user.id] = {
     projectUpdates: true,
     taskAssignments: true,
     mentions: true,
@@ -759,7 +818,7 @@ app.post("/api/auth/social-register", async (req, res) => {
     soundEnabled: true
   };
 
-  state.notifications.unshift({
+  draftState.notifications.unshift({
     id: `notif-${Date.now()}`,
     title: `مرحباً بك في سجل التكافل عبر ${provider}`,
     message: `تم تسجيل حسابك بنجاح. ${isAnonymous ? "أنت الآن في الوضع المخفي." : ""}`,
@@ -768,37 +827,45 @@ app.post("/api/auth/social-register", async (req, res) => {
     read: false
   });
 
-  saveState();
+  
 
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
   res.json({ status: "success", user, token });
-});
 
-app.post("/api/auth/update-profile", (req, res) => {
+      });
+    });
+
+app.post("/api/auth/update-profile", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const tokenHeader = req.headers.authorization;
   if (!tokenHeader) return res.status(401).json({ status: "error" });
   const token = tokenHeader.split(" ")[1];
-  const sessionStr = state.sessions[token];
+  const sessionStr = draftState.sessions[token];
   if (!sessionStr) return res.status(401).json({ status: "error" });
   const user = JSON.parse(sessionStr);
   const { isAnonymous } = req.body;
-  const userIndex = state.users.findIndex(u => u.id === user.id);
+  const userIndex = draftState.users.findIndex(u => u.id === user.id);
   if (userIndex > -1) {
-    state.users[userIndex].isAnonymous = isAnonymous;
-    state.sessions[token] = JSON.stringify(state.users[userIndex]);
-    saveState();
-    res.json({ status: "success", user: state.users[userIndex] });
+    draftState.users[userIndex].isAnonymous = isAnonymous;
+    draftState.sessions[token] = JSON.stringify(draftState.users[userIndex]);
+    
+    res.json({ status: "success", user: draftState.users[userIndex] });
   } else {
     res.status(404).json({ status: "error" });
   }
-});
+
+      });
+    });
 
 const loginSchema = z.object({
   email: z.string().min(3, "يجب إدخال معرف الدخول الصحيح"),
   password: z.string().optional()
 });
 
-app.post("/api/auth/login", (req, res) => {
+app.post("/api/auth/login", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const parsed = loginSchema.safeParse(req.body);
   if (!parsed.success) {
     return res.status(400).json({ status: "error", message: parsed.error.issues[0].message });
@@ -809,7 +876,7 @@ app.post("/api/auth/login", (req, res) => {
   const normalizedIdentifier = identifier.toLowerCase();
 
   // Find user by email (username), phone, or national ID
-  const user = state.users.find(u => 
+  const user = draftState.users.find(u => 
     u.email.toLowerCase() === normalizedIdentifier ||
     (u.phone && u.phone.trim() === identifier) ||
     (u.nationalId && u.nationalId.trim() === identifier)
@@ -828,17 +895,19 @@ app.post("/api/auth/login", (req, res) => {
   }
 
   const userEmailKey = user.email.toLowerCase();
-  const savedHash = state.userPasswords[userEmailKey];
+  const savedHash = draftState.userPasswords[userEmailKey];
   if (!verifyPassword(password, savedHash)) {
     return res.status(401).json({ status: "error", message: "كلمة المرور غير صحيحة، يرجى إعادة المحاولة" });
   }
 
   // Generate Session Token
   const token = jwt.sign({ id: user.id, email: user.email }, JWT_SECRET, { expiresIn: '7d' });
-  saveState();
+  
 
   res.json({ status: "success", user, token });
-});
+
+      });
+    });
 
 app.post("/api/auth/logout", (req, res) => {
   const { token } = req.body;
@@ -868,13 +937,15 @@ app.get("/api/users", (req, res) => {
   res.json(state.users);
 });
 
-app.post("/api/users", (req, res) => {
+app.post("/api/users", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const newUser = req.body;
   if (!newUser.fullName || !newUser.email) {
     return res.status(400).json({ status: "error", message: "الاسم والبريد الإلكتروني مطلوبان" });
   }
   const emailLower = newUser.email.toLowerCase().trim();
-  const exists = state.users.some(u => u.email.toLowerCase() === emailLower);
+  const exists = draftState.users.some(u => u.email.toLowerCase() === emailLower);
   if (exists) {
     return res.status(400).json({ status: "error", message: "البريد الإلكتروني مسجل مسبقاً" });
   }
@@ -896,53 +967,67 @@ app.post("/api/users", (req, res) => {
   userRecord.permissions = newUser.permissions || [];
   userRecord.allowedMunicipalities = newUser.allowedMunicipalities || [userRecord.municipality || "صبراتة"];
 
-  state.users.push(userRecord);
-  saveState();
+  draftState.users.push(userRecord);
+  
   res.json({ status: "success", user: userRecord });
-});
 
-app.put("/api/users/:id", (req, res) => {
+      });
+    });
+
+app.put("/api/users/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const updateData = req.body;
-  const userIndex = state.users.findIndex(u => u.id === id);
+  const userIndex = draftState.users.findIndex(u => u.id === id);
 
   if (userIndex === -1) {
     return res.status(404).json({ status: "error", message: "المستخدم غير موجود" });
   }
 
-  const existingUser = state.users[userIndex];
+  const existingUser = draftState.users[userIndex];
   const updatedUser = {
     ...existingUser,
     ...updateData
   };
 
-  state.users[userIndex] = updatedUser;
-  saveState();
+  draftState.users[userIndex] = updatedUser;
+  
   res.json({ status: "success", user: updatedUser });
-});
+
+      });
+    });
 
 
-app.delete("/api/users/:id", (req, res) => {
+app.delete("/api/users/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const initialLength = state.users.length;
-  state.users = state.users.filter(u => u.id !== id);
-  if (state.users.length === initialLength) {
+  const initialLength = draftState.users.length;
+  draftState.users = draftState.users.filter(u => u.id !== id);
+  if (draftState.users.length === initialLength) {
     return res.status(404).json({ status: "error", message: "المستخدم غير موجود" });
   }
-  saveState();
+  
   res.json({ status: "success", message: "تم حذف المستخدم بنجاح" });
-});
+
+      });
+    });
 
 // Feature Flags APIs
 app.get("/api/feature-flags", (req, res) => {
   res.json({ status: "success", flags: state.featureFlags || {} });
 });
 
-app.put("/api/feature-flags", (req, res) => {
-  state.featureFlags = { ...state.featureFlags, ...req.body };
-  saveState();
-  res.json({ status: "success", flags: state.featureFlags });
-});
+app.put("/api/feature-flags", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
+  draftState.featureFlags = { ...draftState.featureFlags, ...req.body };
+  
+  res.json({ status: "success", flags: draftState.featureFlags });
+
+      });
+    });
 
 // Notifications API
 
@@ -950,38 +1035,52 @@ app.get("/api/notifications", (req, res) => {
   res.json(state.notifications);
 });
 
-app.post("/api/notifications/read", (req, res) => {
+app.post("/api/notifications/read", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.body;
-  const notif = state.notifications.find(n => n.id === id);
+  const notif = draftState.notifications.find(n => n.id === id);
   if (notif) {
     notif.read = true;
-    saveState();
+    
     res.json({ status: "success" });
   } else {
     res.status(404).json({ status: "error", message: "الإشعار غير موجود" });
   }
-});
 
-app.post("/api/notifications/read-all", (req, res) => {
-  state.notifications.forEach(n => {
+      });
+    });
+
+app.post("/api/notifications/read-all", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
+  draftState.notifications.forEach(n => {
     n.read = true;
   });
-  saveState();
+  
   res.json({ status: "success" });
-});
 
-app.post("/api/notifications/pref", (req, res) => {
+      });
+    });
+
+app.post("/api/notifications/pref", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { userId, prefs } = req.body;
   if (!userId || !prefs) {
     return res.status(400).json({ status: "error", message: "البيانات غير مكتملة" });
   }
-  state.notificationPrefs[userId] = prefs;
-  saveState();
+  draftState.notificationPrefs[userId] = prefs;
+  
   res.json({ status: "success", prefs });
-});
+
+      });
+    });
 
 // Post a manual simulated notification
-app.post("/api/notifications/simulate", (req, res) => {
+app.post("/api/notifications/simulate", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { title, message, type } = req.body;
   const newNotif: AppNotification = {
     id: `notif-${Date.now()}`,
@@ -991,13 +1090,17 @@ app.post("/api/notifications/simulate", (req, res) => {
     createdAt: new Date().toISOString(),
     read: false
   };
-  state.notifications.unshift(newNotif);
-  saveState();
+  draftState.notifications.unshift(newNotif);
+  
   res.json({ status: "success", notification: newNotif });
-});
+
+      });
+    });
 
 // Broadcast push notification reminders to target families
-app.post("/api/notifications/broadcast-reminder", (req, res) => {
+app.post("/api/notifications/broadcast-reminder", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { title, message, targetMunicipality, type } = req.body;
   if (!title || !message) {
     return res.status(400).json({ status: "error", message: "العنوان والرسالة مطلوبان لبث التنبيه" });
@@ -1007,7 +1110,7 @@ app.post("/api/notifications/broadcast-reminder", (req, res) => {
   const nowStr = new Date().toISOString();
 
   // Find target users (citizens / families in need) matching the criteria
-  const targetCitizens = state.users.filter(u => {
+  const targetCitizens = draftState.users.filter(u => {
     const matchesRole = u.role === "citizen";
     const matchesMuni = !targetMunicipality || targetMunicipality === "all" || u.municipality === targetMunicipality;
     return matchesRole && matchesMuni;
@@ -1024,7 +1127,7 @@ app.post("/api/notifications/broadcast-reminder", (req, res) => {
     createdAt: nowStr,
     read: false
   };
-  state.notifications.unshift(broadcastNotif);
+  draftState.notifications.unshift(broadcastNotif);
   createdNotifications.push(broadcastNotif);
 
   // 2. Also inject individual notifications for each matched citizen to ensure it pops up in their private dashboard
@@ -1038,16 +1141,16 @@ app.post("/api/notifications/broadcast-reminder", (req, res) => {
       createdAt: nowStr,
       read: false
     };
-    state.notifications.unshift(personalNotif);
+    draftState.notifications.unshift(personalNotif);
     createdNotifications.push(personalNotif);
   });
 
   // Keep notifications list bounded to avoid memory bloating
-  if (state.notifications.length > 200) {
-    state.notifications.splice(200);
+  if (draftState.notifications.length > 200) {
+    draftState.notifications.splice(200);
   }
 
-  saveState();
+  
 
   res.json({
     status: "success",
@@ -1055,7 +1158,9 @@ app.post("/api/notifications/broadcast-reminder", (req, res) => {
     targetCount: targetCitizens.length,
     broadcastNotification: broadcastNotif
   });
-});
+
+      });
+    });
 
 const createCaseSchema = z.object({
   userId: z.string().optional(),
@@ -1083,7 +1188,9 @@ const createCaseSchema = z.object({
 });
 
 // Create/Register citizen request
-app.post("/api/cases", (req, res) => {
+app.post("/api/cases", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const parseResult = createCaseSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({ status: "error", errors: parseResult.error.format() });
@@ -1095,7 +1202,7 @@ app.post("/api/cases", (req, res) => {
   
   const score = calculateNeedScore(family);
   const priority = determinePriorityLevel(score);
-  const count = state.cases.length + 1;
+  const count = draftState.cases.length + 1;
   const caseNumber = `LY-2026-${String(count).padStart(4, "0")}`;
 
   const newCase: Case = {
@@ -1118,16 +1225,20 @@ app.post("/api/cases", (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  state.cases.push(newCase);
-  saveState();
+  draftState.cases.push(newCase);
+  
   res.json({ status: "success", case: newCase });
-});
+
+      });
+    });
 
 // Update/Edit family status by Citizen
-app.put("/api/cases/:id/family", (req, res) => {
+app.put("/api/cases/:id/family", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { family } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "الحالة غير موجودة" });
   }
@@ -1135,9 +1246,11 @@ app.put("/api/cases/:id/family", (req, res) => {
   caseObj.family = family;
   caseObj.needScore = calculateNeedScore(family);
   caseObj.priorityLevel = determinePriorityLevel(caseObj.needScore);
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Fetch all cases
 // 1. الربط مع السجل المدني (Integration & Validation)
@@ -1238,38 +1351,46 @@ app.get("/api/cases", (req, res) => {
 });
 
 // Delete a case
-app.delete("/api/cases/:id", (req, res) => {
+app.delete("/api/cases/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const initialLength = state.cases.length;
-  state.cases = state.cases.filter(c => c.id !== id);
-  if (state.cases.length === initialLength) {
+  const initialLength = draftState.cases.length;
+  draftState.cases = draftState.cases.filter(c => c.id !== id);
+  if (draftState.cases.length === initialLength) {
     return res.status(404).json({ error: "Case not found" });
   }
-  saveState();
+  
   res.json({ status: "success", message: "Case deleted successfully" });
-});
+
+      });
+    });
 
 // Update/Customize a case
-app.put("/api/cases/:id", (req, res) => {
+app.put("/api/cases/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const caseIndex = state.cases.findIndex(c => c.id === id);
+  const caseIndex = draftState.cases.findIndex(c => c.id === id);
   if (caseIndex === -1) {
     return res.status(404).json({ error: "Case not found" });
   }
   
   // Merge incoming updates
-  state.cases[caseIndex] = {
-    ...state.cases[caseIndex],
+  draftState.cases[caseIndex] = {
+    ...draftState.cases[caseIndex],
     ...req.body,
     // Keep immutable values
-    id: state.cases[caseIndex].id,
-    caseNumber: state.cases[caseIndex].caseNumber,
-    createdAt: state.cases[caseIndex].createdAt
+    id: draftState.cases[caseIndex].id,
+    caseNumber: draftState.cases[caseIndex].caseNumber,
+    createdAt: draftState.cases[caseIndex].createdAt
   };
   
-  saveState();
-  res.json({ status: "success", case: state.cases[caseIndex] });
-});
+  
+  res.json({ status: "success", case: draftState.cases[caseIndex] });
+
+      });
+    });
 
 // Get single case details
 app.get("/api/cases/:id", (req, res) => {
@@ -1281,10 +1402,12 @@ app.get("/api/cases/:id", (req, res) => {
 });
 
 // Researcher scores / field visit report
-app.post("/api/cases/:id/visit", (req, res) => {
+app.post("/api/cases/:id/visit", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { researcherScores, researcherId } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
@@ -1300,43 +1423,55 @@ app.post("/api/cases/:id/visit", (req, res) => {
   caseObj.assignedResearcherId = researcherId;
   caseObj.researcherScores = researcherScores;
   
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Admin approves case -> moves to committee_approved
-app.post("/api/cases/:id/approve", (req, res) => {
+app.post("/api/cases/:id/approve", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
 
   caseObj.status = "committee_approved";
   caseObj.approvedAt = new Date().toISOString();
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Admin rejects case
-app.post("/api/cases/:id/reject", (req, res) => {
+app.post("/api/cases/:id/reject", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { reason } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
 
   caseObj.status = "rejected";
   caseObj.rejectionReason = reason;
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
 
-app.post("/api/cases/:id/delivery", (req, res) => {
+      });
+    });
+
+app.post("/api/cases/:id/delivery", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { volunteerId, bioVerification } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
@@ -1350,7 +1485,7 @@ app.post("/api/cases/:id/delivery", (req, res) => {
   // Create an automated donor impact report if it has a donor
   // (We'll check if there are transactions for this case)
   // Let's add a general app notification
-  state.notifications.push({
+  draftState.notifications.push({
     id: "notif-" + Date.now().toString(),
     title: "تقرير أثر: تم إيصال المساعدة",
     message: `بفضل الله ثم تبرعاتكم، تم إيصال المساعدة للحالة رقم ${caseObj.caseNumber}.`,
@@ -1360,14 +1495,18 @@ app.post("/api/cases/:id/delivery", (req, res) => {
     userId: "" // Broadcast to those who care, or we could target donors directly
   });
 
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
 
-app.post("/api/cases/:id/appeal", (req, res) => {
+      });
+    });
+
+app.post("/api/cases/:id/appeal", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { reason } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
@@ -1375,34 +1514,42 @@ app.post("/api/cases/:id/appeal", (req, res) => {
   caseObj.status = "appealed";
   caseObj.appealReason = reason;
   caseObj.appealedAt = new Date().toISOString();
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Charity adopts case -> publishes it
-app.post("/api/cases/:id/adopt", (req, res) => {
+app.post("/api/cases/:id/adopt", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { charityId } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
 
   caseObj.status = "published";
   caseObj.assignedCharityId = charityId;
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Process donation (with double-entry ledger tracking)
-app.post("/api/donations", (req, res) => {
+app.post("/api/donations", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { donorId, donorNameOverride, caseId, projectId, fundType, amount, currency, paymentMethod } = req.body;
 
   const rate = currency === "USD" ? 4.85 : currency === "EUR" ? 5.25 : 1.0; // Mock exchange rate to Libyan Dinar (LYD)
   const displayAmount = amount;
   const amountLYD = Math.round(amount * rate);
 
-  const count = state.transactions.length + 1;
+  const count = draftState.transactions.length + 1;
   const receiptNumber = `RCV-2026-${String(count).padStart(6, "0")}`;
   const trackingHash = `0x${Math.random().toString(16).substring(2, 10)}${Math.random().toString(16).substring(2, 10)}`;
 
@@ -1424,13 +1571,13 @@ app.post("/api/donations", (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  state.transactions.push(tx);
+  draftState.transactions.push(tx);
   
   logAudit(donorId || donorNameOverride || "Anonymous", "DONATION_RECEIVED", receiptNumber, `Received ${displayAmount} ${currency} for ${caseId || projectId || fundType}. Hash: ${trackingHash}`);
 
   // Update target
   if (caseId) {
-    const caseObj = state.cases.find(c => c.id === caseId);
+    const caseObj = draftState.cases.find(c => c.id === caseId);
     if (caseObj) {
       caseObj.amountCollected = Math.min(caseObj.amountCollected + amountLYD, caseObj.amountRequired);
       if (caseObj.amountCollected >= caseObj.amountRequired) {
@@ -1438,7 +1585,7 @@ app.post("/api/donations", (req, res) => {
       }
     }
   } else if (projectId) {
-    const proj = state.projects.find(p => p.id === projectId);
+    const proj = draftState.projects.find(p => p.id === projectId);
     if (proj) {
       proj.collectedAmount = Math.min(proj.collectedAmount + amountLYD, proj.targetAmount);
       if (proj.collectedAmount >= proj.targetAmount) {
@@ -1448,7 +1595,7 @@ app.post("/api/donations", (req, res) => {
   }
 
   // Update central fund balance
-  const fund = state.funds.find(f => f.fundType === fundType);
+  const fund = draftState.funds.find(f => f.fundType === fundType);
   if (fund) {
     fund.balance += amountLYD;
     fund.totalIn += amountLYD;
@@ -1473,25 +1620,29 @@ app.post("/api/donations", (req, res) => {
     createdBy: donorNameOverride || "فاعل خير"
   };
 
-  state.ledger.push(ledgerEntry);
+  draftState.ledger.push(ledgerEntry);
 
   // Reward Gamification points if logged-in donor
   if (donorId) {
-    const user = state.users.find(u => u.id === donorId);
+    const user = draftState.users.find(u => u.id === donorId);
     if (user) {
       user.gamificationPoints += Math.round(amountLYD / 10);
     }
   }
 
-  saveState();
+  
   res.json({ status: "success", transaction: tx });
-});
+
+      });
+    });
 
 // Charity safe disbursement (Anti-Double-Withdrawal Prevention)
-app.post("/api/cases/:id/disburse", (req, res) => {
+app.post("/api/cases/:id/disburse", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { charityId } = req.body;
-  const caseObj = state.cases.find(c => c.id === id);
+  const caseObj = draftState.cases.find(c => c.id === id);
   if (!caseObj) {
     return res.status(404).json({ error: "Case not found" });
   }
@@ -1525,7 +1676,7 @@ app.post("/api/cases/:id/disburse", (req, res) => {
   // Deduct from fund balance (using the case's corresponding fund)
   // Standard is Sadakah/Zakat
   const targetFund = caseObj.needTypes.includes("علاج") || caseObj.needTypes.includes("أجهزة طبية") ? "طوارئ" : "صدقة";
-  const fund = state.funds.find(f => f.fundType === targetFund);
+  const fund = draftState.funds.find(f => f.fundType === targetFund);
   if (fund) {
     fund.balance = Math.max(fund.balance - caseObj.amountRequired, 0);
     fund.totalOut += caseObj.amountRequired;
@@ -1542,14 +1693,18 @@ app.post("/api/cases/:id/disburse", (req, res) => {
     createdBy: charityId
   };
 
-  state.ledger.push(ledgerEntry);
+  draftState.ledger.push(ledgerEntry);
 
-  saveState();
+  
   res.json({ status: "success", case: caseObj });
-});
+
+      });
+    });
 
 // Submit Community report / Anti-fraud
-app.post("/api/reports", (req, res) => {
+app.post("/api/reports", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { caseId, caseNumber, reporterName, reporterContact, reason } = req.body;
   const newReport: CommunityReport = {
     id: `rep-${Date.now()}`,
@@ -1561,10 +1716,12 @@ app.post("/api/reports", (req, res) => {
     status: "pending",
     createdAt: new Date().toISOString()
   };
-  state.reports.push(newReport);
-  saveState();
+  draftState.reports.push(newReport);
+  
   res.json({ status: "success", report: newReport });
-});
+
+      });
+    });
 
 // Fetch all reports
 app.get("/api/reports", (req, res) => {
@@ -1572,21 +1729,27 @@ app.get("/api/reports", (req, res) => {
 });
 
 // Update report status (Admin investigating)
-app.put("/api/reports/:id", (req, res) => {
+app.put("/api/reports/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { status } = req.body;
-  const report = state.reports.find(r => r.id === id);
+  const report = draftState.reports.find(r => r.id === id);
   if (report) {
     report.status = status;
-    saveState();
+    
     res.json({ status: "success", report });
   } else {
     res.status(404).json({ error: "Report not found" });
   }
-});
+
+      });
+    });
 
 // Skill/Asset Matching
-app.post("/api/skills", (req, res) => {
+app.post("/api/skills", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { providerName, providerContact, specialty, offeringType, description } = req.body;
   const newSkill: SkillOffering = {
     id: `sk-${Date.now()}`,
@@ -1597,29 +1760,35 @@ app.post("/api/skills", (req, res) => {
     description,
     createdAt: new Date().toISOString()
   };
-  state.skills.push(newSkill);
-  saveState();
+  draftState.skills.push(newSkill);
+  
   res.json({ status: "success", skill: newSkill });
-});
+
+      });
+    });
 
 app.get("/api/skills", (req, res) => {
   res.json(state.skills);
 });
 
 // Match a skill/asset to a case (renovations/appliances)
-app.post("/api/skills/:id/match", (req, res) => {
+app.post("/api/skills/:id/match", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
   const { caseId, caseNumber } = req.body;
-  const skill = state.skills.find(s => s.id === id);
+  const skill = draftState.skills.find(s => s.id === id);
   if (skill) {
     skill.matchedCaseId = caseId;
     skill.matchedCaseNumber = caseNumber;
-    saveState();
+    
     res.json({ status: "success", skill });
   } else {
     res.status(404).json({ error: "Skill offering not found" });
   }
-});
+
+      });
+    });
 
 // Fetch Major Projects
 app.get("/api/projects", (req, res) => {
@@ -1627,9 +1796,11 @@ app.get("/api/projects", (req, res) => {
 });
 
 // Add a new major project (hospital, school, etc.)
-app.post("/api/projects", (req, res) => {
+app.post("/api/projects", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { category, title, description, targetAmount, municipality, coverImage } = req.body;
-  const count = state.projects.length + 1;
+  const count = draftState.projects.length + 1;
   const projectNumber = `PRJ-2026-${String(count).padStart(4, "0")}`;
   
   const newProject: MajorProject = {
@@ -1646,8 +1817,8 @@ app.post("/api/projects", (req, res) => {
     createdAt: new Date().toISOString()
   };
 
-  state.projects.push(newProject);
-  saveState();
+  draftState.projects.push(newProject);
+  
 
   // Create an automatic system notification for the newly proposed project
   const newNotif: AppNotification = {
@@ -1658,45 +1829,55 @@ app.post("/api/projects", (req, res) => {
     createdAt: new Date().toISOString(),
     read: false
   };
-  state.notifications.unshift(newNotif);
-  saveState();
+  draftState.notifications.unshift(newNotif);
+  
 
   res.json({ status: "success", project: newProject });
-});
+
+      });
+    });
 
 // Delete a major project (mosque, well, etc.)
-app.delete("/api/projects/:id", (req, res) => {
+app.delete("/api/projects/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const initialLength = state.projects.length;
-  state.projects = state.projects.filter(p => p.id !== id);
-  if (state.projects.length === initialLength) {
+  const initialLength = draftState.projects.length;
+  draftState.projects = draftState.projects.filter(p => p.id !== id);
+  if (draftState.projects.length === initialLength) {
     return res.status(404).json({ error: "Project not found" });
   }
-  saveState();
+  
   res.json({ status: "success", message: "Project deleted successfully" });
-});
+
+      });
+    });
 
 // Update/Customize a major project
-app.put("/api/projects/:id", (req, res) => {
+app.put("/api/projects/:id", async (req, res) => {
+      await TransactionManager.withTransaction(async (draftState) => {
+        
   const { id } = req.params;
-  const projectIndex = state.projects.findIndex(p => p.id === id);
+  const projectIndex = draftState.projects.findIndex(p => p.id === id);
   if (projectIndex === -1) {
     return res.status(404).json({ error: "Project not found" });
   }
 
   // Merge updates
-  state.projects[projectIndex] = {
-    ...state.projects[projectIndex],
+  draftState.projects[projectIndex] = {
+    ...draftState.projects[projectIndex],
     ...req.body,
     // Keep immutable values
-    id: state.projects[projectIndex].id,
-    projectNumber: state.projects[projectIndex].projectNumber,
-    createdAt: state.projects[projectIndex].createdAt
+    id: draftState.projects[projectIndex].id,
+    projectNumber: draftState.projects[projectIndex].projectNumber,
+    createdAt: draftState.projects[projectIndex].createdAt
   };
 
-  saveState();
-  res.json({ status: "success", project: state.projects[projectIndex] });
-});
+  
+  res.json({ status: "success", project: draftState.projects[projectIndex] });
+
+      });
+    });
 
 // Fetch ledger logs
 app.get("/api/ledger", (req, res) => {
@@ -1959,6 +2140,74 @@ app.post("/api/ai/maps-grounding", async (req, res) => {
   }
 });
 
+
+app.post("/api/generate-image", async (req, res) => {
+  const { prompt, aspectRatio } = req.body;
+  if (!prompt) {
+    return res.status(400).json({ error: "prompt is required" });
+  }
+
+  const ai = getGenAI();
+  if (ai) {
+    try {
+      console.log("Generating image with Gemini...", prompt, aspectRatio);
+      
+      const response = await ai.models.generateContent({
+        model: 'gemini-3.1-flash-image-preview',
+        contents: {
+          parts: [
+            { text: prompt },
+          ],
+        },
+        config: {
+          imageConfig: {
+            aspectRatio: aspectRatio || "16:9",
+            imageSize: "1K"
+          },
+        },
+      });
+
+      let imageUrl = null;
+      if (response.candidates && response.candidates[0] && response.candidates[0].content) {
+        for (const part of response.candidates[0].content.parts) {
+          if (part.inlineData) {
+             const base64EncodeString = part.inlineData.data;
+             imageUrl = `data:image/png;base64,${base64EncodeString}`;
+             break;
+          }
+        }
+      }
+
+      if (imageUrl) {
+        res.json({ success: true, imageUrl });
+      } else {
+        res.status(500).json({ error: "Failed to extract generated image from response" });
+      }
+
+    } catch (e) {
+      console.error("Gemini image generation error:", e);
+      res.status(500).json({ error: "فشل توليد الصورة" });
+    }
+  } else {
+    // Offline simulation mode
+    setTimeout(() => {
+      let width = 800;
+      let height = 450;
+      if (aspectRatio === "1:1") { width = 500; height = 500; }
+      else if (aspectRatio === "9:16") { width = 450; height = 800; }
+      else if (aspectRatio === "4:3") { width = 800; height = 600; }
+      else if (aspectRatio === "3:4") { width = 600; height = 800; }
+      else if (aspectRatio === "3:2") { width = 900; height = 600; }
+      else if (aspectRatio === "2:3") { width = 600; height = 900; }
+      
+      res.json({
+        success: true,
+        imageUrl: `https://picsum.photos/seed/${encodeURIComponent(prompt)}/${width}/${height}`
+      });
+    }, 2000);
+  }
+});
+
 // Global Error Handler
 app.use((err: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error(err.stack);
@@ -1992,7 +2241,7 @@ async function startServer() {
         console.log("State synchronized from Firestore");
       }
     } catch(e) {
-      console.error("Failed to read from Firestore, using local state", e);
+      if ((e as any).code !== 5) console.error("Failed to read from Firestore, using local state", e);
     }
   }
 

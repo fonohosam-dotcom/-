@@ -23,7 +23,10 @@ const MapsSearchPortal = lazy(() => import("./components/MapsSearchPortal"));
 const InteractiveReports = lazy(() => import("./components/InteractiveReports"));
 const WorkspaceIntegration = lazy(() => import("./components/WorkspaceIntegration"));
 import { translations, Language } from "./translations";
-import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText } from "lucide-react";
+import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, HeartPulse, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText } from "lucide-react";
+import UsersManagement from "./components/UsersManagement";
+import UserProfile from "./components/UserProfile";
+
 import { customFetch } from "./utils/api";
 
 const fetch = customFetch;
@@ -531,7 +534,7 @@ export default function App() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: "تبرع مالي جديد تم إثباته بالتوقيع العشري 🪙",
+          title: "تبرع مالي جديد تم إثباته بالتوقيع العشري 💎",
           message: `أجرى المانح مساهمة مباركة بقيمة ${donationData.amount} ${donationData.currency || "د.ل"} لدعم ${targetLabel}. تم توثيق تبرعه في دفتر الشفافية المزدوج.`,
           type: "donation"
         })
@@ -636,6 +639,11 @@ export default function App() {
     playAlertSound("click");
   };
 
+    const handleTriggerGeoSOS = (muni: string) => {
+    setActiveGeoSOS(muni);
+    playAlertSound("notification");
+  };
+  
   const handleLoginSuccess = (user: User, token: string) => {
     setCurrentUser(user);
     setSessionToken(token);
@@ -677,7 +685,7 @@ export default function App() {
       title: lang === "ar" ? "الخدمات العامة" : "Public Services",
       showGroup: true,
       items: [
-        { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "text-[#10B981]", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
+        { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
         { id: "donation", label: t.navDonateNow || "تبرع الآن", icon: Coins, colorClass: "text-amber-500", bgColor: "bg-amber-500/20", show: featureFlags.module_donation !== false },
         { id: "verify", label: lang === "ar" ? "التحقق ومكافحة الاحتيال" : "Public Verify", icon: ShieldCheck, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: featureFlags.module_verify !== false },
         { id: "reports", label: t.navReports || "التقارير والمؤشرات", icon: FileText, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: featureFlags.module_reports !== false },
@@ -688,6 +696,7 @@ export default function App() {
       showGroup: true,
       items: [
         { id: "map", label: t.navMapsSearch || "الخرائط والبحث", icon: Map, colorClass: "text-sky-500", bgColor: "bg-sky-500/20", show: featureFlags.module_map !== false },
+        { id: "intake", label: lang === "ar" ? "بوابة التمكين وتسجيل حالة" : "Apply for Help", icon: UserCheck, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: !currentUser },
         { id: "cases", label: t.navAddBeneficiary || "الحالات الميدانية", icon: Heart, colorClass: "text-emerald-500", bgColor: "bg-emerald-500/20", show: !!currentUser && ["admin", "researcher", "charity", "field_coordinator"].includes(currentUser.role) },
         { id: "infrastructure", label: t.navHospitalsSchools || "المشاريع الكبرى", icon: Building2, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: featureFlags.module_projects !== false },
       ]
@@ -704,6 +713,10 @@ export default function App() {
           bgColor: "bg-violet-500/20", 
           show: !!currentUser 
         },
+        { id: "admin/cases", label: "الطلبات والموافقات", icon: FileText, colorClass: "text-emerald-500", bgColor: "bg-emerald-500/20", show: !!currentUser && ["admin"].includes(currentUser.role) },
+        { id: "admin/projects", label: "اعتماد المشاريع", icon: Building2, colorClass: "text-blue-500", bgColor: "bg-blue-500/20", show: !!currentUser && ["admin"].includes(currentUser.role) },
+        { id: "admin/funds", label: "إدارة الصناديق", icon: Coins, colorClass: "text-amber-500", bgColor: "bg-amber-500/20", show: !!currentUser && ["admin"].includes(currentUser.role) },
+        { id: "admin/geosos", label: "نداء الطوارئ الميداني", icon: Radio, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: !!currentUser && ["admin"].includes(currentUser.role) },
         { id: "printing", label: t.navPrintCenter || "سجلات الطباعة", icon: Printer, colorClass: "text-blue-500", bgColor: "bg-blue-500/20", show: !!currentUser && ["admin", "researcher", "charity"].includes(currentUser.role) },
         { id: "security", label: t.navSecurityIntegrity || "سجل التدقيق الأمني", icon: ShieldAlert, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: !!currentUser && currentUser.role === "admin" },
         { id: "workspace", label: lang === "ar" ? "تكامل مساحة العمل" : "Workspace Integration", icon: Globe, colorClass: "text-blue-600", bgColor: "bg-blue-600/20", show: !!currentUser && ["admin", "charity", "researcher", "data_analyst", "content_manager"].includes(currentUser.role) },
@@ -724,7 +737,7 @@ export default function App() {
             {/* COLLAPSIBLE SIDEBAR TOGGLER BUTTON (THREE BARS) */}
             <button
               onClick={() => { setSidebarOpen(!sidebarOpen); playAlertSound("click"); }}
-              className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 transition-all text-[#10B981] cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
+              className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 transition-all ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
               title="تعديل القوائم الجانبية"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -737,7 +750,7 @@ export default function App() {
               </span>
               <div className="text-right">
                 <span className="text-xs font-black text-gray-50 block leading-none">{t.appName}</span>
-                <span className="text-[9px] text-[#10B981] font-mono mt-0.5 block leading-none">{t.appSubName}</span>
+                <span className="text-[9px] ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} font-mono mt-0.5 block leading-none">{t.appSubName}</span>
               </div>
             </div>
           </div>
@@ -751,7 +764,7 @@ export default function App() {
                 setTheme(theme === "light" ? "dark" : "light");
                 playAlertSound("click");
               }}
-              className="p-2 bg-slate-900 hover:bg-slate-800 text-gray-200 hover:text-[#10B981] transition-all rounded-xl cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
+              className="p-2 bg-slate-900 hover:bg-slate-800 text-gray-200 hover:${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} transition-all rounded-xl cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
               title={theme === "light" ? "تفعيل النمط الداكن" : "تفعيل النمط الفاتح"}
               id="theme-mode-toggle-btn"
             >
@@ -768,7 +781,7 @@ export default function App() {
                 onClick={() => { setLangOpen(!langOpen); playAlertSound("click"); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-gray-200 hover:text-white hover:bg-slate-800 transition-colors rounded-xl cursor-pointer text-xs font-extrabold focus:outline-none border border-slate-800"
               >
-                <Globe className="w-3.5 h-3.5 text-[#10B981]" />
+                <Globe className="w-3.5 h-3.5 ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}" />
                 <span>{langOptions.find((o) => o.code === lang)?.label.split(" ")[0]}</span>
               </button>
               {langOpen && (
@@ -785,7 +798,7 @@ export default function App() {
                           playAlertSound("click");
                         }}
                         className={`w-full text-right px-3 py-2 rounded-xl text-xs hover:bg-slate-800 transition-colors block cursor-pointer font-bold ${
-                          lang === o.code ? "text-[#10B981] bg-slate-950" : "text-gray-300"
+                          lang === o.code ? "${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} bg-slate-950" : "text-gray-300"
                         }`}
                       >
                         {o.label}
@@ -818,7 +831,7 @@ export default function App() {
                 >
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="font-extrabold text-sm text-gray-100 flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 text-[#10B981]" />
+                      <Bell className="w-4 h-4 ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}" />
                       {t.notifications || "التنبيهات"}
                     </span>
                     <div className="flex items-center gap-1">
@@ -859,7 +872,7 @@ export default function App() {
                         >
                           <div className="flex items-start gap-1.5">
                             <span className="text-sm mt-0.5">
-                              {n.type === "donation" ? "🪙" : n.type === "assignment" ? "📋" : n.type === "mention" ? "💬" : "🚨"}
+                              {n.type === "donation" ? "💎" : n.type === "assignment" ? "📋" : n.type === "mention" ? "💬" : "🚨"}
                             </span>
                             <div className="flex-1 space-y-0.5">
                               <div className="font-bold text-[11px] text-gray-100">{n.title}</div>
@@ -877,7 +890,7 @@ export default function App() {
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllAsRead}
-                      className="w-full text-center text-[10px] font-bold text-[#10B981] hover:underline pt-1 block cursor-pointer"
+                      className="w-full text-center text-[10px] font-bold ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} hover:underline pt-1 block cursor-pointer"
                     >
                       {lang === "ar" ? "تعيين الكل كمقروء" : "Mark all as read"}
                     </button>
@@ -968,6 +981,7 @@ export default function App() {
                   
                   {visibleItems.map((item) => {
                     const isActive = activeTab === item.id;
+                    const isWorkspace = item.id === "workspace";
                     const Icon = item.icon;
                     return (
                       <button
@@ -975,13 +989,13 @@ export default function App() {
                         onClick={() => { setActiveTab(item.id as any); playAlertSound("click"); if (window.innerWidth < 768) setSidebarOpen(false); }}
                         className={`group relative w-full flex items-center justify-between p-2.5 rounded-xl transition-all duration-300 font-extrabold text-xs cursor-pointer overflow-hidden ${
                           isActive
-                            ? "bg-gradient-to-r from-emerald-950 to-emerald-900 border border-emerald-800/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
+                            ? (isWorkspace ? "bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-500/30 shadow-[0_0_15px_rgba(66,133,244,0.15)]" : "bg-gradient-to-r from-emerald-950 to-emerald-900 border border-emerald-800/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]")
                             : "border border-transparent hover:bg-slate-800/80 hover:border-slate-700 hover:shadow-lg"
                         }`}
                       >
                         {/* Active Glow indicator */}
                         {isActive && (
-                          <div className="absolute top-0 left-0 w-1 h-full bg-[#10B981] shadow-[0_0_10px_#10B981]"></div>
+                          <div className={`absolute top-0 left-0 w-1 h-full ${isWorkspace ? 'bg-blue-500 shadow-[0_0_10px_#4285F4]' : 'bg-[#10B981] shadow-[0_0_10px_#10B981]'}`}></div>
                         )}
                         
                         {/* Hover Glow effect */}
@@ -989,13 +1003,13 @@ export default function App() {
 
                         <span className="flex items-center gap-2.5 flex-row-reverse w-full relative z-10">
                           <span className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${
-                            isActive 
-                              ? `${item.bgColor} ${item.colorClass} shadow-inner` 
-                              : `bg-slate-900/80 text-slate-400 group-hover:${item.bgColor} group-hover:${item.colorClass} group-hover:scale-110`
+                            isActive
+                               ? (isWorkspace ? "bg-white text-blue-600 shadow-inner" : `${item.bgColor} ${item.colorClass} shadow-inner`)
+                               : (isWorkspace ? "bg-slate-900/80 text-blue-400/70 group-hover:bg-white group-hover:text-blue-600 group-hover:scale-110" : `bg-slate-900/80 text-slate-400 group-hover:${item.bgColor} group-hover:${item.colorClass} group-hover:scale-110`)
                           }`}>
                             <Icon className="w-4 h-4" />
                           </span>
-                          <span className={`transition-all duration-300 group-hover:text-white ${isActive ? "text-[#10B981]" : "text-slate-300 group-hover:-translate-x-1"}`}>
+                          <span className={`transition-all duration-300 group-hover:text-white ${isActive ? (isWorkspace ? 'text-blue-400' : 'text-[#10B981]') : "text-slate-300 group-hover:-translate-x-1"}`}>
                             {item.label}
                           </span>
                         </span>
@@ -1034,333 +1048,177 @@ export default function App() {
         <div className="flex-1 min-h-[calc(100vh-62px)] overflow-y-auto overflow-x-hidden relative">
           {/* Main body content container */}
           <main className="max-w-6xl mx-auto px-4 py-8 min-h-[70vh]">
-            <AnimatePresence mode="wait">
-              <motion.div 
-                key={activeTab}
-                initial={{ opacity: 0, y: 10, filter: "blur(4px)" }}
-                animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-                exit={{ opacity: 0, y: -10, filter: "blur(4px)" }}
-                transition={{ duration: 0.25, ease: "easeInOut" }}
-              >
-        <Suspense fallback={<div className="flex justify-center items-center h-64 text-emerald-600 animate-pulse font-bold">جاري تحميل المكونات...</div>}><Routes location={location} >
-        <Route path="/" element={
-          <LandingView
-            cases={cases}
-            projects={projects}
-            funds={funds}
-            onSubmitReport={handleSubmitCommunityReport}
-            onNavigateToDonor={() => setActiveTab("donation")}
-            onNavigateToTab={setActiveTab}
-            visitorsCount={visitorsCount}
-            onlineUsersCount={onlineUsersCount}
-            registeredUsersCount={users.length}
-          />
-        } />
-        <Route path="/workspace" element={
-          <WorkspaceIntegration user={currentUser} lang={lang} cases={cases} />
-        } />
-        <Route path="/cases" element={
-          <IntakePortal
-            user={currentUser}
-            cases={cases}
-            onRegisterCase={handleRegisterCase}
-            onUpdateFamily={handleUpdateFamily}
-            onDeleteCase={handleDeleteCase}
-            onUpdateCase={handleUpdateCase}
-          />
-        } />
-
-        <Route path="/infrastructure" element={
-          <InfrastructurePortal
-            user={currentUser}
-            projects={projects}
-            onDonateToProject={async (projId, amount) => {
-              await handleDonate({
-                donorId: currentUser?.id || null,
-                donorNameOverride: currentUser?.fullName || "متبرع فاعل خير",
-                projectId: projId,
-                fundType: "صدقة_جارية",
-                amount: amount,
-                currency: "LYD",
-                paymentMethod: "بوابة البنية التحتية"
-              });
-            }}
-            onRefreshData={loadData}
-            onDeleteProject={handleDeleteProject}
-            onUpdateProject={handleUpdateProject}
-          />
-        } />
-
-        <Route path="/map" element={
-          <Suspense fallback={<div className="p-8 text-center text-slate-500 font-bold">{lang === "ar" ? "جاري تحميل الخريطة التفاعلية..." : "Loading Interactive Map..."}</div>}>
-            <MapsSearchPortal
-              user={currentUser}
+          {activeTab === "home" && (
+            <LandingView
               cases={cases}
               projects={projects}
-              charities={users.filter(u => u.role === 'charity')}
-              onDonate={handleDonate}
-              lang={lang}
-            />
-          </Suspense>
-        } />
-
-        <Route path="/donation" element={
-          <div className="space-y-8 animate-fade-in">
-            {/* Integrated high-fidelity Payment Hub */}
-            <PaymentHub
-              lang={lang}
-              onDonateSuccess={(data) => {
-                handleDonate({
-                  donorId: currentUser?.id || null,
-                  donorNameOverride: currentUser?.fullName || "متبرع فاعل خير",
-                  fundType: data.fund,
-                  amount: data.amount,
-                  currency: "LYD",
-                  paymentMethod: data.method
-                });
+              funds={funds}
+              onSubmitReport={handleSubmitCommunityReport}
+              onNavigateToDonor={() => {
+                setActiveTab("donation");
+                window.scrollTo(0, 0);
               }}
+              onNavigateToTab={(tab) => {
+                setActiveTab(tab as any);
+                window.scrollTo(0, 0);
+              }}
+              activeGeoSOS={activeGeoSOS}
+              lang={lang}
+              reports={reports}
             />
-            {/* Live Trackers & Donor leaderboard */}
+          )}
+
+          {activeTab === "intake" && (
+            <IntakePortal 
+              user={currentUser}
+              cases={cases}
+              onRegisterCase={handleRegisterCase}
+              onUpdateFamily={handleUpdateFamily}
+            />
+          )}
+          {activeTab === "donation" && (
             <DonorPortal
               user={currentUser}
               cases={cases}
               projects={projects}
               onDonate={handleDonate}
-              onSubmitSkill={handleSubmitSkill}
+              onSubmitSkill={() => {}}
               activeGeoSOS={activeGeoSOS}
-              onTriggerGeoSOS={(msg) => setActiveGeoSOS(msg)}
+              onTriggerGeoSOS={handleTriggerGeoSOS}
               lang={lang}
             />
-          </div>
-        } />
+          )}
 
-        <Route path="/reports" element={
-          <Suspense fallback={<div className="p-8 text-center text-slate-500 font-bold">{lang === "ar" ? "جاري تحميل التقارير التفاعلية..." : "Loading Interactive Reports..."}</div>}>
+          {activeTab === "cases" && currentUser?.role === "citizen" && (
+            <CitizenPortal
+              user={currentUser}
+              citizenCase={citizenCase}
+              onRegisterCase={handleRegisterCase}
+              onUpdateFamily={handleUpdateFamily}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === "cases" && currentUser?.role === "researcher" && (
+            <ResearcherPortal
+              user={currentUser}
+              cases={cases}
+              onSubmitVisit={handleSubmitVisitReport}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === "cases" && currentUser?.role === "charity" && (
+            <CharityPortal
+              user={currentUser}
+              cases={cases}
+              onAdopt={handleAdoptCaseByCharity}
+              onDisburse={handleDisburseCaseByCharity}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === "cases" && currentUser?.role === "field_coordinator" && (
+            <VolunteerPortal
+              user={currentUser}
+              cases={cases}
+            />
+          )}
+
+          {activeTab === "admin/cases" && currentUser?.role === "admin" && (
+            <AdminPortal
+              user={currentUser}
+              users={users}
+              cases={cases}
+              projects={projects}
+              ledger={ledger}
+              funds={funds}
+              onDeleteCase={handleDeleteCase}
+              onUpdateCase={handleUpdateCase}
+              onApproveCase={handleApproveCaseByAdmin}
+              onRejectCase={handleRejectCaseByAdmin}
+              onUpdateBudget={handleUpdateCaseBudgetByAdmin}
+              onApproveProject={handleApproveProjectByAdmin}
+              lang={lang}
+            />
+          )}
+          
+          {activeTab === "admin/projects" && currentUser?.role === "admin" && (
+            <AdminPortal
+              user={currentUser}
+              users={users}
+              cases={cases}
+              projects={projects}
+              ledger={ledger}
+              funds={funds}
+              onDeleteCase={handleDeleteCase}
+              onUpdateCase={handleUpdateCase}
+              onApproveCase={handleApproveCaseByAdmin}
+              onRejectCase={handleRejectCaseByAdmin}
+              onUpdateBudget={handleUpdateCaseBudgetByAdmin}
+              onApproveProject={handleApproveProjectByAdmin}
+              lang={lang}
+            />
+          )}
+          {activeTab === "infrastructure" && (
+            <InfrastructurePortal
+              projects={projects}
+              cases={cases}
+              user={currentUser}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === "verify" && (
+            <PublicVerifyPortal
+              cases={cases}
+              reports={reports}
+              users={users}
+              onAddReport={handleSubmitCommunityReport}
+              lang={lang}
+            />
+          )}
+
+          {activeTab === "map" && (
+            <MapsSearchPortal
+              cases={cases}
+              projects={projects}
+              charities={users.filter(u => u.role === "charity")}
+              lang={lang}
+              onDonate={handleDonate}
+              user={currentUser}
+            />
+          )}
+
+          {activeTab === "reports" && (
             <InteractiveReports
               cases={cases}
               projects={projects}
-              funds={funds}
               ledger={ledger}
+              funds={funds}
+              lang={lang}
             />
-          </Suspense>
-        } />
+          )}
 
-        <Route path="/printing" element={
-          <OfficialPrintCenter
-            cases={cases}
-            projects={projects}
-            ledger={ledger}
-          />
-        } />
+          {activeTab === "printing" && (
+            <OfficialPrintCenter
+              cases={cases}
+              projects={projects}
+              user={currentUser}
+              lang={lang}
+            />
+          )}
 
-        <Route path="/security" element={
-          <SecurityAuditVault
-            cases={cases}
-            projects={projects}
-            ledger={ledger}
-            users={users}
-            lang={lang}
-          />
-        } />
-
-        <Route path="/verify" element={
-          <PublicVerifyPortal
-            cases={cases}
-            reports={reports}
-            users={users}
-            onAddReport={(newReport) => setReports((prev) => [newReport, ...prev])}
-          />
-        } />
-
-        <Route path="/supervision" element={
-          <>
-            {currentUser ? (
-              <div className="space-y-6">
-                {/* Active Session Role Banner */}
-                <div className="bg-slate-900 text-white rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 border border-slate-800 shadow-md">
-                  <div className="flex items-center gap-3 flex-row-reverse text-right">
-                    <span className="text-2xl">🛡️</span>
-                    <div>
-                      <p className="font-black text-sm text-slate-100">{currentUser.fullName}</p>
-                      <p className="text-[10px] text-emerald-400 font-mono mt-0.5">
-                        الجلسة نشطة بصفتك: {
-                          currentUser.role === "admin" ? "لجنة الإدارة والتدقيق الوطني" :
-                          currentUser.role === "citizen" ? "مستفيد السجل الوطني" :
-                          currentUser.role === "researcher" ? "باحث اجتماعي ميداني" :
-                          currentUser.role === "evaluation_committee" ? "عضو لجنة التقييم المحايدة" :
-                          currentUser.role === "finance_manager" ? "المدير المالي للصندوق" :
-                          "جمعية شريكة معتمدة"
-                        } ({currentUser.email})
-                      </p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={handleLogout}
-                    className="bg-gray-800 hover:bg-gray-700 text-gray-200 hover:text-white font-bold py-2 px-4 rounded-xl text-xs transition-colors cursor-pointer flex items-center gap-1.5 flex-row-reverse"
-                  >
-                    <span>تسجيل الخروج والانتقال لدور آخر</span>
-                    <LogOut className="w-3.5 h-3.5" />
-                  </button>
-                </div>
-
-                {/* Render Portal Component */}
-                {currentUser.role === "citizen" && (
-                  <CitizenPortal
-                    user={currentUser}
-                    citizenCase={citizenCase}
-                    onRegisterCase={handleRegisterCase}
-                    onUpdateFamily={handleUpdateFamily}
-                  />
-                )}
-                {currentUser.role === "researcher" && (
-                  <ResearcherPortal
-                    user={currentUser}
-                    cases={cases}
-                    onSubmitVisit={handleSubmitVisitReport}
-                  />
-                )}
-                {currentUser.role === "charity" && (
-                  <CharityPortal
-                    user={currentUser}
-                    cases={cases}
-                    funds={funds}
-                    onAdoptCase={handleAdoptCaseByCharity}
-                    onDisburseCase={handleDisburseCaseByCharity}
-                  />
-                )}
-                {currentUser.role === "volunteer" && (
-                  <VolunteerPortal
-                    user={currentUser}
-                    cases={cases}
-                  />
-                )}
-                {(currentUser.role === "admin" || currentUser.role === "evaluation_committee" || currentUser.role === "finance_manager") && (
-                  <AdminPortal
-                    user={currentUser}
-                    cases={cases}
-                    projects={projects}
-                    ledger={ledger}
-                    funds={funds}
-                    reports={reports}
-                    users={users}
-                    onApproveCase={handleApproveCaseByAdmin}
-                    onRejectCase={handleRejectCaseByAdmin}
-                    onUpdateCaseBudget={handleUpdateCaseBudgetByAdmin}
-                    onApproveProject={handleApproveProjectByAdmin}
-                    onRejectProject={handleRejectProjectByAdmin}
-                    onUpdateProjectBudget={handleUpdateProjectBudgetByAdmin}
-                    onUpdateReportStatus={handleUpdateReportStatus}
-                    onTriggerGeoSOS={(msg) => setActiveGeoSOS(msg)}
-                    lang={lang}
-                    isRefreshPaused={isRefreshPaused}
-                    onToggleRefresh={() => setIsRefreshPaused((prev) => !prev)}
-                    lastUpdated={lastRefreshedAt}
-                  />
-                )}
-              </div>
-            ) : (
-              <div className="space-y-8 animate-fade-in text-right">
-                {/* Welcoming Gate Header */}
-                <div className="max-w-2xl mx-auto text-center space-y-2">
-                  <span className="bg-emerald-50 text-emerald-800 text-[10px] font-black px-3 py-1 rounded-full border border-emerald-100 uppercase">
-                    بوابة الإشراف والحوكمة الموحدة
-                  </span>
-                  <h2 className="text-2xl font-black text-gray-900 tracking-tight">السجل الوطني الشامل للتدقيق والمتابعة</h2>
-                  <p className="text-xs text-gray-500 max-w-lg mx-auto leading-relaxed">
-                    منصة حوكمة التمكين والمساعدات الميدانية. اختر رتبة الدخول لتصفح المهام، تقديم المعاملات، أو مطابقة قيود الدفتر المالي المزدوج والمتابعة الميدانية.
-                  </p>
-                </div>
-
-                {/* Grid of Portals */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
-                  
-                  {/* Card 1: Field Inspector */}
-                  <div className="bg-white border border-[#E5E3DA] p-6 rounded-3xl flex flex-col justify-between hover:border-emerald-600/30 transition-all shadow-sm">
-                    <div className="space-y-2">
-                      <div className="w-10 h-10 rounded-2xl bg-teal-50 text-teal-800 flex items-center justify-center text-lg shadow-sm">
-                        📋
-                      </div>
-                      <h3 className="font-black text-slate-800 text-sm">بوابة الباحثين والمدققين الميدانيين</h3>
-                      <p className="text-[11px] text-gray-500 leading-relaxed">
-                        إجراء التقييمات العشرية السرية الميدانية للتحقق من أهليّة الأسر، رفع الصور الموثقة لحالة المبنى مجرّدة GPS لحفظ حرمة المنازل.
-                      </p>
-                    </div>
-                    <div className="flex gap-2 mt-4 flex-row-reverse pt-4 border-t border-slate-50">
-                      <button
-                        onClick={() => setShowAuthModal(true)}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[10px] cursor-pointer"
-                      >
-                        بوابة المفتشين المعتمدة
-                      </button>
-                      
-                    </div>
-                  </div>
-
-                  {/* Card 2: Charities */}
-                  <div className="bg-white border border-[#E5E3DA] p-6 rounded-3xl flex flex-col justify-between hover:border-emerald-600/30 transition-all shadow-sm">
-                    <div className="space-y-2">
-                      <div className="w-10 h-10 rounded-2xl bg-sky-50 text-sky-800 flex items-center justify-center text-lg shadow-sm">
-                        🏢
-                      </div>
-                      <h3 className="font-black text-slate-800 text-sm">بوابة الجمعيات والمؤسسات الشريكة</h3>
-                      <p className="text-[11px] text-gray-500 leading-relaxed">
-                        صرف المخصصات المالية والعينية والطبية للجمعيات الأهلية المعتمدة وطنياً، وتبني الحالات الإنسانية المعتمدة من الهيئة مباشرة.
-                      </p>
-                    </div>
-                    <div className="flex gap-2 mt-4 flex-row-reverse pt-4 border-t border-slate-50">
-                      <button
-                        onClick={() => setShowAuthModal(true)}
-                        className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2 rounded-xl text-[10px] cursor-pointer"
-                      >
-                        بوابة الجمعيات الشريكة
-                      </button>
-                      
-                    </div>
-                  </div>
-
-                  {/* Card 3: Administrative Board */}
-                  <div className="bg-white border border-rose-100 p-6 rounded-3xl flex flex-col justify-between hover:border-rose-600/30 transition-all shadow-sm ring-1 ring-rose-50/50">
-                    <div className="space-y-2">
-                      <div className="w-10 h-10 rounded-2xl bg-rose-50 text-rose-800 flex items-center justify-center text-lg shadow-sm">
-                        🛡️
-                      </div>
-                      <h3 className="font-black text-slate-800 text-sm">مجلس الإدارة العليا وهيئة التدقيق المالي</h3>
-                      <p className="text-[11px] text-gray-500 leading-relaxed">
-                        مفتشي ديوان المحاسبة واللجنة الإدارية العليا: اعتماد الملفات الحيوية، مكافحة الاحتيال، مراجعة الدفتر المالي المزدوج، وإرسال تنبيهات الطوارئ الجغرافية SOS.
-                      </p>
-                    </div>
-                    <div className="flex gap-2 mt-4 flex-row-reverse pt-4 border-t border-slate-50">
-                      <button
-                        onClick={() => setShowAuthModal(true)}
-                        className="flex-1 bg-rose-600 hover:bg-rose-700 text-white font-bold py-2 rounded-xl text-[10px] cursor-pointer"
-                      >
-                        بوابة الهيئة الرقابية
-                      </button>
-                      
-                    </div>
-                  </div>
-
-                </div>
-
-                {/* Visual Security Notice */}
-                <div className="max-w-4xl mx-auto bg-slate-50 border border-slate-100 p-5 rounded-3xl flex items-start gap-3 flex-row-reverse text-xs leading-relaxed text-slate-600">
-                  <span className="text-xl">🔒</span>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-800">بروتوكول الأمان الموحد (TLS-Takaful SEC)</p>
-                    <p className="text-[10px] text-gray-400 mt-0.5">
-                      يتم تشفير كافة المدخلات الهوياتية والأرقام الوطنية حيوياً بمستوى أمان عالي. لا يتم تداول بيانات الإحداثيات والصور للباحث الميداني إلا بصلاحيات معتمدة من ديوان المحاسبة لضمان أقصى كفاءة للمنظومة التكافلية.
-                    </p>
-                  </div>
-                </div>
-
-              </div>
-            )}
-          </>
-        } />
-        </Routes></Suspense>
-              </motion.div>
-            </AnimatePresence>
-      </main>
+          {activeTab === "security" && currentUser?.role === "admin" && (
+            <SecurityAuditVault
+              cases={cases}
+              projects={projects}
+              ledger={ledger}
+              users={users}
+              lang={lang}
+            />
+          )}
+        </main>
 
       {/* General Footer */}
       <footer className="bg-[#2C2C2A] text-white py-12 mt-12 border-t border-[#E5E3DA] text-xs">

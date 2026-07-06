@@ -51,7 +51,7 @@ export default function ImpactSimulator({ cases, municipality }: ImpactSimulator
       case "housing":
         return { cost: 450, label: "بدل إيجار وإيواء اضطراري", unit: "مواطن مأوى بكرامة" };
       case "education":
-        return { cost: 95, label: "حقائب مدرسية وتجهيز فصول", unit: "طالب مدعوم دراسياً" };
+        return { cost: 95, label: "توفير سكن ومأوى", unit: "طالب مدعوم دراسياً" };
       case "water":
         return { cost: 35, label: "شبكات توزيع ومياه نقية", unit: "مواطن يصله ماء عذب" };
       default:

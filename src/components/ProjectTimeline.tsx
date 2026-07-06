@@ -44,27 +44,21 @@ export default function ProjectTimeline({
     noProjects: isAr ? "لا توجد مشاريع مطابقة حالياً" : "No matching projects found",
     completionRate: isAr ? "نسبة إقفال التمويل" : "Funding Collected",
     phasesTitle: isAr ? "المخطط الزمني للمراحل التنفيذية" : "Milestone Execution Timeline",
-    mosque: isAr ? "بناء مسجد" : "Mosque Construction",
     well: isAr ? "حفر بئر مياه" : "Water Well Drilling",
-    hospital: isAr ? "تجهيز مستشفى/مركز صحي" : "Medical Center Equip",
-    school: isAr ? "صيانة مدرسة" : "School Renovation",
     orphan_care: isAr ? "رعاية وبناء دار أيتام" : "Orphan Care Center",
     housing: isAr ? "مجمع سكني خيري" : "Charitable Housing Complex"
   };
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
-      case "mosque": return t.mosque;
       case "well": return t.well;
-      case "hospital": return t.hospital;
-      case "school": return t.school;
       case "orphan_care": return t.orphan_care;
       case "housing": return t.housing;
       default: return cat;
     }
   };
 
-  const categories = ["all", "mosque", "well", "hospital", "school", "orphan_care", "housing"];
+  const categories = ["all", "well", "orphan_care", "housing"];
 
   // Filter projects
   const filteredProjects = projects.filter((p) => {
@@ -164,7 +158,7 @@ export default function ProjectTimeline({
         id: 4,
         titleAr: "المرحلة 4: التدشين والتشغيل والتسليم",
         titleEn: "Phase 4: Operational Commissioning & Handover",
-        descAr: "الفحص الفني النهائي للجودة والمطابقة مع وزارة الشؤون الاجتماعية، وافتتاح المشروع رسمياً.",
+        descAr: "الفحص الفني النهائي للجودة والمطابقة ، وافتتاح المشروع رسمياً.",
         descEn: "Final technical quality inspection, validation with the social board, and official ribbon-cutting opening.",
         weeksOffset: 20,
         status: isCompleted ? ("completed" as const) : ("pending" as const),
@@ -414,7 +408,7 @@ export default function ProjectTimeline({
               {/* Footnote stamp of security */}
               <div className="text-[10px] text-slate-400 bg-white border border-[#E5E3DA] p-3 rounded-xl flex items-center justify-between">
                 <span>
-                  {isAr ? "جهة الإشراف: ديوان وزارة الإسكان والمرافق" : "Supervising Body: Ministry of Housing"}
+                  {isAr ? "جهة الإشراف: لجنة الإسكان والمرافق" : "Supervising Body: Ministry of Housing"}
                 </span>
                 <span className="font-mono text-[9px] font-black text-[#0F6E56]">
                   {activeProject.status === "completed" ? "✓ APPROVED COMPLETED" : "⌚ MONITORING LIVE"}
