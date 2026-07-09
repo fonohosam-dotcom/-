@@ -1037,175 +1037,186 @@ export default function App() {
                       <span className="w-7 h-7 rounded-xl bg-slate-900/80 group-hover:bg-slate-800 group-hover:scale-110 transition-all duration-300 flex items-center justify-center shrink-0 relative z-10">
                         <LogIn className="w-4 h-4" />
                       </span>
-                      <span className="relative z-10 transition-transform duration-300 group-hover:-translate-x-1">{lang === "ar" ? "تسجيل الدخول للنظام" : "System Login"}</span>
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-          </div>
+                      <span className="        <main className="max-w-6xl mx-auto px-4 py-8 min-h-[70vh]">
+          <Suspense fallback={<div className="flex items-center justify-center min-h-[50vh]"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-500"></div></div>}>
+            {activeTab === "zakat" && <ZakatCalculator lang={lang} t={translations[lang]} theme={theme} />}
+            {activeTab === "gamification" && <GamificationDashboard lang={lang} theme={theme} />}
+            <AIChatbot lang={lang} theme={theme} />
+            {activeTab === "blockchain" && <BlockchainExplorer lang={lang} theme={theme} />}
+            {activeTab === "charity_analytics" && <CharityAnalyticsDashboard lang={lang} theme={theme} />}
+            {activeTab === "home" && (
+              <LandingView
+                cases={cases}
+                projects={projects}
+                funds={funds}
+                onSubmitReport={handleSubmitCommunityReport}
+                onNavigateToDonor={() => {
+                  setActiveTab("donation");
+                  window.scrollTo(0, 0);
+                }}
+                onNavigateToTab={(tab) => {
+                  setActiveTab(tab as any);
+                  window.scrollTo(0, 0);
+                }}
+                activeGeoSOS={activeGeoSOS}
+                lang={lang}
+                reports={reports}
+              />
+            )}
 
-          {/* Sidebar Footer */}
-          <div className="p-4 border-t border-slate-800 space-y-2 text-[10px] text-gray-500 font-mono text-center w-64">
-            <div>SECURITY ACCESS: SECURE</div>
-            <div>TAKAFUL WEB 2026.3</div>
-          </div>
-        </motion.aside>
-        )}
-        </AnimatePresence>
+            {activeTab === "intake" && (
+              <IntakePortal 
+                user={currentUser}
+                cases={cases}
+                onRegisterCase={handleRegisterCase}
+                onUpdateFamily={handleUpdateFamily}
+              />
+            )}
+            {activeTab === "donation" && (
+              <DonorPortal
+                user={currentUser}
+                cases={cases}
+                projects={projects}
+                onDonate={handleDonate}
+                onSubmitSkill={() => {}}
+                activeGeoSOS={activeGeoSOS}
+                onTriggerGeoSOS={handleTriggerGeoSOS}
+                lang={lang}
+              />
+            )}
 
-        {/* Content Box with Modern 2026 glass-feeling design */}
-        <div className="flex-1 min-h-[calc(100vh-62px)] overflow-y-auto overflow-x-hidden relative">
-          {/* Main body content container */}
-          <main className="max-w-6xl mx-auto px-4 py-8 min-h-[70vh]">
-          {activeTab === "zakat" && <ZakatCalculator lang={lang} t={translations[lang]} theme={theme} />}
-          {activeTab === "gamification" && <GamificationDashboard lang={lang} theme={theme} />}
-          <AIChatbot lang={lang} theme={theme} />
-          {activeTab === "blockchain" && <BlockchainExplorer lang={lang} theme={theme} />}
-          {activeTab === "charity_analytics" && <CharityAnalyticsDashboard lang={lang} theme={theme} />}
-          {activeTab === "home" && (
-            <LandingView
-              cases={cases}
-              projects={projects}
-              funds={funds}
-              onSubmitReport={handleSubmitCommunityReport}
-              onNavigateToDonor={() => {
-                setActiveTab("donation");
-                window.scrollTo(0, 0);
-              }}
-              onNavigateToTab={(tab) => {
-                setActiveTab(tab as any);
-                window.scrollTo(0, 0);
-              }}
-              activeGeoSOS={activeGeoSOS}
-              lang={lang}
-              reports={reports}
-            />
-          )}
+            {activeTab === "cases" && currentUser?.role === "citizen" && (
+              <CitizenPortal
+                user={currentUser}
+                citizenCase={citizenCase}
+                onRegisterCase={handleRegisterCase}
+                onUpdateFamily={handleUpdateFamily}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "intake" && (
-            <IntakePortal 
-              user={currentUser}
-              cases={cases}
-              onRegisterCase={handleRegisterCase}
-              onUpdateFamily={handleUpdateFamily}
-            />
-          )}
-          {activeTab === "donation" && (
-            <DonorPortal
-              user={currentUser}
-              cases={cases}
-              projects={projects}
-              onDonate={handleDonate}
-              onSubmitSkill={() => {}}
-              activeGeoSOS={activeGeoSOS}
-              onTriggerGeoSOS={handleTriggerGeoSOS}
-              lang={lang}
-            />
-          )}
+            {activeTab === "cases" && currentUser?.role === "researcher" && (
+              <ResearcherPortal
+                user={currentUser}
+                cases={cases}
+                onSubmitVisit={handleSubmitVisitReport}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "cases" && currentUser?.role === "citizen" && (
-            <CitizenPortal
-              user={currentUser}
-              citizenCase={citizenCase}
-              onRegisterCase={handleRegisterCase}
-              onUpdateFamily={handleUpdateFamily}
-              lang={lang}
-            />
-          )}
+            {activeTab === "cases" && currentUser?.role === "charity" && (
+              <CharityPortal
+                user={currentUser}
+                cases={cases}
+                onAdopt={handleAdoptCaseByCharity}
+                onDisburse={handleDisburseCaseByCharity}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "cases" && currentUser?.role === "researcher" && (
-            <ResearcherPortal
-              user={currentUser}
-              cases={cases}
-              onSubmitVisit={handleSubmitVisitReport}
-              lang={lang}
-            />
-          )}
+            {activeTab === "cases" && currentUser?.role === "field_coordinator" && (
+              <VolunteerPortal
+                user={currentUser}
+                cases={cases}
+              />
+            )}
 
-          {activeTab === "cases" && currentUser?.role === "charity" && (
-            <CharityPortal
-              user={currentUser}
-              cases={cases}
-              onAdopt={handleAdoptCaseByCharity}
-              onDisburse={handleDisburseCaseByCharity}
-              lang={lang}
-            />
-          )}
+            {activeTab === "admin/cases" && currentUser?.role === "admin" && (
+              <AdminPortal
+                user={currentUser}
+                users={users}
+                cases={cases}
+                projects={projects}
+                ledger={ledger}
+                funds={funds}
+                onDeleteCase={handleDeleteCase}
+                onUpdateCase={handleUpdateCase}
+                onApproveCase={handleApproveCaseByAdmin}
+                onRejectCase={handleRejectCaseByAdmin}
+                onUpdateBudget={handleUpdateCaseBudgetByAdmin}
+                onApproveProject={handleApproveProjectByAdmin}
+                lang={lang}
+              />
+            )}
+            
+            {activeTab === "admin/projects" && currentUser?.role === "admin" && (
+              <AdminPortal
+                user={currentUser}
+                users={users}
+                cases={cases}
+                projects={projects}
+                ledger={ledger}
+                funds={funds}
+                onDeleteCase={handleDeleteCase}
+                onUpdateCase={handleUpdateCase}
+                onApproveCase={handleApproveCaseByAdmin}
+                onRejectCase={handleRejectCaseByAdmin}
+                onUpdateBudget={handleUpdateCaseBudgetByAdmin}
+                onApproveProject={handleApproveProjectByAdmin}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "cases" && currentUser?.role === "field_coordinator" && (
-            <VolunteerPortal
-              user={currentUser}
-              cases={cases}
-            />
-          )}
+            {activeTab === "medical" && (
+              <MedicalPortal lang={lang} />
+            )}
+            {activeTab === "infrastructure" && (
+              <InfrastructurePortal
+                projects={projects}
+                cases={cases}
+                user={currentUser}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "admin/cases" && currentUser?.role === "admin" && (
-            <AdminPortal
-              user={currentUser}
-              users={users}
-              cases={cases}
-              projects={projects}
-              ledger={ledger}
-              funds={funds}
-              onDeleteCase={handleDeleteCase}
-              onUpdateCase={handleUpdateCase}
-              onApproveCase={handleApproveCaseByAdmin}
-              onRejectCase={handleRejectCaseByAdmin}
-              onUpdateBudget={handleUpdateCaseBudgetByAdmin}
-              onApproveProject={handleApproveProjectByAdmin}
-              lang={lang}
-            />
-          )}
-          
-          {activeTab === "admin/projects" && currentUser?.role === "admin" && (
-            <AdminPortal
-              user={currentUser}
-              users={users}
-              cases={cases}
-              projects={projects}
-              ledger={ledger}
-              funds={funds}
-              onDeleteCase={handleDeleteCase}
-              onUpdateCase={handleUpdateCase}
-              onApproveCase={handleApproveCaseByAdmin}
-              onRejectCase={handleRejectCaseByAdmin}
-              onUpdateBudget={handleUpdateCaseBudgetByAdmin}
-              onApproveProject={handleApproveProjectByAdmin}
-              lang={lang}
-            />
-          )}
+            {activeTab === "verify" && (
+              <PublicVerifyPortal
+                cases={cases}
+                reports={reports}
+                users={users}
+                onAddReport={handleSubmitCommunityReport}
+                lang={lang}
+              />
+            )}
 
-          {activeTab === "medical" && (
-            <MedicalPortal lang={lang} />
-          )}
-          {activeTab === "infrastructure" && (
-            <InfrastructurePortal
-              projects={projects}
-              cases={cases}
-              user={currentUser}
-              lang={lang}
-            />
-          )}
-
-          {activeTab === "verify" && (
-            <PublicVerifyPortal
-              cases={cases}
-              reports={reports}
-              users={users}
-              onAddReport={handleSubmitCommunityReport}
-              lang={lang}
-            />
-          )}
-
-          {activeTab === "map" && (
-            <MapsSearchPortal
-              cases={cases}
-              projects={projects}
-              charities={users.filter(u => u.role === "charity")}
-              lang={lang}
-              onDonate={handleDonate}
-              user={currentUser}
+            {activeTab === "map" && (
+              <MapsSearchPortal
+                cases={cases}
+                projects={projects}
+                charities={users.filter(u => u.role === "charity")}
+                lang={lang}
+                onDonate={handleDonate}
+                user={currentUser}
+              />
+            )}
+            {activeTab === "reports" && (
+              <InteractiveReports
+                cases={cases}
+                projects={projects}
+                ledger={ledger}
+                funds={funds}
+                lang={lang}
+              />
+            )}
+            {activeTab === "printing" && (
+              <OfficialPrintCenter
+                cases={cases}
+                projects={projects}
+                user={currentUser}
+                lang={lang}
+              />
+            )}
+            {activeTab === "security" && currentUser?.role === "admin" && (
+              <SecurityAuditVault
+                cases={cases}
+                projects={projects}
+                ledger={ledger}
+                users={users}
+                lang={lang}
+              />
+            )}
+          </Suspense>
+        </main>      user={currentUser}
             />
           )}
 

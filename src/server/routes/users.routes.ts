@@ -1,6 +1,11 @@
+import crypto from 'crypto';
+import { z } from "zod";
 
 import { Router } from "express";
-import { state, TransactionManager, logAudit } from "../lib/legacyState.js";
+import { state, TransactionManager, logAudit } from "../lib/legacyState";
+import { db } from "../../db/index";
+import { users } from "../../db/schema";
+import { eq } from "drizzle-orm";
 import { User, AppNotification } from "../types/index.js";
 import { logger } from "../lib/logger.js";
 
@@ -29,8 +34,14 @@ router.get("/users/gamification", async (req, res) => {
   }
 });
 
-router.get("/users", (req, res) => {
-  res.json(state.users);
+router.get("/users", async (req, res) => {
+  try {
+    const allUsers = await db.select().from(users);
+    res.json(allUsers);
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    res.status(500).json({ status: "error" });
+  }
 });
 
 router.post("/users", async (req, res) => {

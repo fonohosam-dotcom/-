@@ -1,10 +1,11 @@
 import { relations } from 'drizzle-orm';
-import { integer, pgTable, text, real, timestamp, jsonb } from 'drizzle-orm/pg-core';
+import { integer, serial, pgTable, text, real, timestamp, jsonb } from 'drizzle-orm/pg-core';
 
 export const users = pgTable('users', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   uid: text('uid').notNull().unique(), 
   email: text('email').notNull(),
+  passwordHash: text('password_hash'),
   fullName: text('full_name').notNull(),
   phone: text('phone'),
   role: text('role').notNull(),
@@ -20,7 +21,7 @@ export const users = pgTable('users', {
 });
 
 export const cases = pgTable('cases', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   caseId: text('case_id').notNull().unique(),
   caseNumber: text('case_number').notNull(),
   userId: integer('user_id').references(() => users.id).notNull(),
@@ -44,7 +45,7 @@ export const cases = pgTable('cases', {
 });
 
 export const majorProjects = pgTable('major_projects', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   projectId: text('project_id').notNull().unique(),
   projectNumber: text('project_number').notNull(),
   category: text('category').notNull(),
@@ -59,7 +60,7 @@ export const majorProjects = pgTable('major_projects', {
 });
 
 export const funds = pgTable('funds', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   fundId: text('fund_id').notNull().unique(),
   fundType: text('fund_type').notNull(),
   balance: real('balance').default(0),
@@ -68,7 +69,7 @@ export const funds = pgTable('funds', {
 });
 
 export const ledgerEntries = pgTable('ledger_entries', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   entryId: text('entry_id').notNull().unique(),
   entryDate: timestamp('entry_date').notNull(),
   description: text('description').notNull(),
@@ -79,7 +80,7 @@ export const ledgerEntries = pgTable('ledger_entries', {
 });
 
 export const communityReports = pgTable('community_reports', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   reportId: text('report_id').notNull().unique(),
   caseId: text('case_id'),
   caseNumber: text('case_number'),
@@ -91,7 +92,7 @@ export const communityReports = pgTable('community_reports', {
 });
 
 export const auditTrails = pgTable('audit_trails', {
-  id: integer('id').primaryKey(),
+  id: serial('id').primaryKey(),
   actionType: text('action_type').notNull(),
   entityType: text('entity_type').notNull(),
   entityId: text('entity_id').notNull(),

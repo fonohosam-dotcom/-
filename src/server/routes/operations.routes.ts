@@ -1,3 +1,4 @@
+import crypto from "crypto";
 
 import { Router } from "express";
 import { state, TransactionManager, logAudit } from "../lib/legacyState.js";
