@@ -1,9 +1,12 @@
-import { drizzle } from 'drizzle-orm/better-sqlite3';
-import Database from 'better-sqlite3';
+import { drizzle } from 'drizzle-orm/node-postgres';
+import pkg from 'pg';
+const { Pool } = pkg;
 import * as schema from './schema.ts';
+import * as dotenv from 'dotenv';
+dotenv.config();
 
-// Use a local file for SQLite database
-const sqlite = new Database('sqlite.db');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL || 'postgresql://postgres:postgres@localhost:5432/takaful',
+});
 
-// Initialize Drizzle with the database and schema
-export const db = drizzle(sqlite, { schema });
+export const db = drizzle(pool, { schema });

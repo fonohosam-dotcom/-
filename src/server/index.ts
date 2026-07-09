@@ -1,15 +1,16 @@
+
 import express from "express";
-import { env } from "./config/env.js";
+import { env } from "./config/env.ts";
 import { 
   securityHeaders, 
   corsMiddleware, 
   apiLimiter, 
   decryptBodyMiddleware,
   sanitizeBodyMiddleware 
-} from "./middleware/security.js";
-import { errorHandler } from "./middleware/errorHandler.js";
-import { logger } from "../lib/logger.ts";
-import appRoutes from "./routes/index.js";
+} from "./middleware/security.ts";
+import { errorHandler } from "./middleware/errorHandler.ts";
+import { logger } from "./lib/logger.js";
+import appRoutes from "./routes/index.ts";
 
 const app = express();
 
