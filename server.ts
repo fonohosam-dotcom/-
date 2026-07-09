@@ -57,8 +57,8 @@ const limiter = rateLimit({
 });
 app.use("/api/", limiter);
 
-app.use("/api/auth", authRoutes);
-app.use("/api/cases", casesRoutes);
+// app.use("/api/auth", authRoutes);
+// app.use("/api/cases", casesRoutes);
 
 app.use((req, res, next) => {
   logger.info(`${req.method} ${req.url}`);
