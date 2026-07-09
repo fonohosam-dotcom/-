@@ -11,6 +11,7 @@ const LandingView = lazy(() => import("./components/LandingView"));
 const CitizenPortal = lazy(() => import("./components/CitizenPortal"));
 const ResearcherPortal = lazy(() => import("./components/ResearcherPortal"));
 const DonorPortal = lazy(() => import("./components/DonorPortal"));
+const CharityAnalyticsDashboard = lazy(() => import("./components/CharityAnalyticsDashboard"));
 const CharityPortal = lazy(() => import("./components/CharityPortal"));
 const VolunteerPortal = lazy(() => import("./components/VolunteerPortal"));
 const AdminPortal = lazy(() => import("./components/AdminPortal"));
@@ -28,7 +29,7 @@ const MapsSearchPortal = lazy(() => import("./components/MapsSearchPortal"));
 const InteractiveReports = lazy(() => import("./components/InteractiveReports"));
 const WorkspaceIntegration = lazy(() => import("./components/WorkspaceIntegration"));
 import { translations, Language } from "./translations";
-import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, HeartPulse, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText, Star, Database } from "lucide-react";
+import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, HeartPulse, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText, Star, Database, TrendingUp } from "lucide-react";
 import UsersManagement from "./components/UsersManagement";
 import UserProfile from "./components/UserProfile";
 
@@ -693,7 +694,7 @@ export default function App() {
         { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "text-[#10B981]", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
         { id: "donation", label: t.navDonateNow || "تبرع الآن", icon: Coins, colorClass: "text-amber-500", bgColor: "bg-amber-500/20", show: featureFlags.module_donation !== false },
         { id: "zakat", label: lang === "ar" ? "حاسبة الزكاة الذكية" : "Zakat Calculator", icon: Coins, colorClass: "text-emerald-500", bgColor: "bg-emerald-500/20", show: true },
-        { id: "gamification", label: lang === "ar" ? "لوحة التميز والتأثير" : "Gamification", icon: Star, Database, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: true },
+        { id: "gamification", label: lang === "ar" ? "لوحة التميز والتأثير" : "Gamification", icon: Star, Database, TrendingUp, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: true },
         { id: "blockchain", label: lang === "ar" ? "مستكشف كتل التكافل" : "Blockchain Explorer", icon: Database, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: true },
         { id: "verify", label: lang === "ar" ? "التحقق ومكافحة الاحتيال" : "Public Verify", icon: ShieldCheck, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: featureFlags.module_verify !== false },
         { id: "reports", label: t.navReports || "التقارير والمؤشرات", icon: FileText, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: featureFlags.module_reports !== false },
@@ -728,6 +729,7 @@ export default function App() {
         { id: "admin/geosos", label: "نداء الطوارئ الميداني", icon: Radio, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: !!currentUser && ["admin"].includes(currentUser.role) },
         { id: "printing", label: t.navPrintCenter || "سجلات الطباعة", icon: Printer, colorClass: "text-blue-500", bgColor: "bg-blue-500/20", show: !!currentUser && ["admin", "researcher", "charity"].includes(currentUser.role) },
         { id: "security", label: t.navSecurityIntegrity || "سجل التدقيق الأمني", icon: ShieldAlert, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: !!currentUser && currentUser.role === "admin" },
+        { id: "charity_analytics", label: lang === "ar" ? "تحليلات الأثر الخيري" : "Impact Analytics", icon: TrendingUp, colorClass: "text-indigo-600", bgColor: "bg-indigo-600/20", show: !!currentUser && ["charity", "admin"].includes(currentUser.role) },
         { id: "workspace", label: lang === "ar" ? "تكامل مساحة العمل" : "Workspace Integration", icon: Globe, colorClass: "text-blue-600", bgColor: "bg-blue-600/20", show: !!currentUser && ["admin", "charity", "researcher", "data_analyst", "content_manager"].includes(currentUser.role) },
       ]
     }
@@ -1060,6 +1062,7 @@ export default function App() {
           {activeTab === "gamification" && <GamificationDashboard lang={lang} theme={theme} />}
           <AIChatbot lang={lang} theme={theme} />
           {activeTab === "blockchain" && <BlockchainExplorer lang={lang} theme={theme} />}
+          {activeTab === "charity_analytics" && <CharityAnalyticsDashboard lang={lang} theme={theme} />}
           {activeTab === "home" && (
             <LandingView
               cases={cases}
