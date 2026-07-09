@@ -441,9 +441,9 @@ export default function AdminCharts({
             
             {/* Ministry Identification */}
             <div className="space-y-0.5 text-xs text-slate-700 order-3 md:order-1 font-sans">
-              <p className="font-extrabold text-sm text-slate-900">ليبيا</p>
-              <p className="font-bold text-[#0F6E56]"></p>
-              <p className="font-medium text-slate-600">إدارة المنصة</p>
+              <p className="font-extrabold text-sm text-slate-900">دولة ليبيا</p>
+              <p className="font-bold text-[#0F6E56]">حكومة الوحدة الوطنية</p>
+              <p className="font-medium text-slate-600">وزارة الشؤون الاجتماعية</p>
               <p className="text-[10px] text-slate-400 font-mono">الرمز التنظيمي: LY-TKFL-GOV</p>
             </div>
 
@@ -489,7 +489,7 @@ export default function AdminCharts({
             </h2>
             <p className="text-xs text-slate-500 max-w-xl mx-auto leading-relaxed font-sans">
               {isAr
-                ? "مستند بياني رسمي معتمد من إدارة التفتيش المالي والاجتماعي الموحد، يعكس حجم المساهمات المالية المباشرة، تصنيف البلديات، ونسب إنجاز المشاريع الكبرى."
+                ? "مستند بياني رسمي معتمد من ديوان التفتيش المالي والاجتماعي الموحد، يعكس حجم المساهمات المالية المباشرة، تصنيف البلديات، ونسب إنجاز المشاريع الكبرى."
                 : "An official analytical report certified by the Joint Board of Charitable Supervision, representing donation curves, municipal aid density and development project compliance rates."}
             </p>
           </div>
@@ -820,7 +820,7 @@ export default function AdminCharts({
               <div className="h-6 flex items-center justify-center">
                 <span className="font-mono text-xs italic text-amber-700/75 font-black tracking-wide">National.Social.Board</span>
               </div>
-              <p className="text-[9px] text-slate-400 font-sans">{isAr ? "لجنة الإدارة" : "Cabinet Certified Seal"}</p>
+              <p className="text-[9px] text-slate-400 font-sans">{isAr ? "ديوان رئاسة الوزراء" : "Cabinet Certified Seal"}</p>
             </div>
 
           </div>

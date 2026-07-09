@@ -52,7 +52,7 @@ export default function ImageGenerator({ onGenerate }: { onGenerate?: (url: stri
           <textarea
             value={prompt}
             onChange={(e) => setPrompt(e.target.value)}
-            placeholder="مثال: صورة لبئر حديث في قرية نائية وقت الغروب..."
+            placeholder="مثال: صورة لمدرسة حديثة في قرية نائية وقت الغروب..."
             className="w-full border border-slate-200 rounded-xl p-3 focus:ring-2 focus:ring-indigo-500 focus:outline-none transition-all resize-none h-24 text-sm"
           ></textarea>
         </div>

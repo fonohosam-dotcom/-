@@ -1242,7 +1242,7 @@ export default function AdminPortal({
                 <span className="text-purple-600">🏗️</span>
                 <span>طلبات المشاريع البنيوية المقترحة (بانتظار التدقيق والاعتماد المالي)</span>
               </h3>
-              <p className="text-xs text-gray-500 text-right">مراجعة وتعديل الميزانية المطلوبة للمشاريع التضامنية (آبار، إسكان، مشاريع تنموية) قبل إطلاقها للتبرع</p>
+              <p className="text-xs text-gray-500 text-right">مراجعة وتعديل الميزانية المطلوبة للمشاريع التضامنية (مساجد، آبار، مدارس، مرافق عامة) قبل إطلاقها للتبرع</p>
             </div>
 
             {pendingProjects.length === 0 ? (
@@ -1259,7 +1259,7 @@ export default function AdminPortal({
                       <div className="flex justify-between items-center text-xs">
                         <span className="font-mono font-bold text-purple-700">{p.projectNumber || "مشروع جديد"}</span>
                         <span className="bg-purple-50 text-purple-700 font-bold px-2 py-0.5 rounded text-[10px]">
-                          البلدية: {p.municipality} | نوع: {p.category === "well" ? "بئر مياه" : "بنية تحتية"}
+                          البلدية: {p.municipality} | نوع: {p.category === "well" ? "بئر مياه" : p.category === "mosque" ? "مسجد عتيق" : p.category === "school" ? "مدرسة" : "مرفق تضامني"}
                         </span>
                       </div>
 
@@ -2414,7 +2414,7 @@ export default function AdminPortal({
                 <div className="bg-white border border-dashed border-[#E5E3DA] p-2.5 rounded-lg text-[10px] text-slate-400 flex items-center gap-1.5 mt-3">
                   <ShieldAlert className="w-4 h-4 text-rose-500 flex-shrink-0 animate-pulse" />
                   <span>
-                    نظام SOS التابع لمنصة التكافل مشفر ومربوط بنظام الإحداثيات الموحد (GIS) .
+                    نظام SOS التابع لمنصة التكافل مشفر ومربوط بنظام الإحداثيات الموحد (GIS) بوزارة الشؤون الاجتماعية.
                   </span>
                 </div>
               </div>
@@ -2686,6 +2686,7 @@ export default function AdminPortal({
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 {funds.map((f) => {
                   const fundNames = {
+                    "زكاة": "صندوق الزكاة الشرعي",
                     "صدقة": "صندوق الصدقات العامة",
                     "كفالة_يتيم": "صندوق كفالة الأيتام",
                     "صدقة_جارية": "صندوق الصدقة الجارية",

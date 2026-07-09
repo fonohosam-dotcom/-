@@ -15,6 +15,7 @@ import ProfileModal from "./components/ProfileModal";
 const PaymentHub = lazy(() => import("./components/PaymentHub"));
 const IntakePortal = lazy(() => import("./components/IntakePortal"));
 const InfrastructurePortal = lazy(() => import("./components/InfrastructurePortal"));
+const MedicalPortal = lazy(() => import("./components/MedicalPortal"));
 const OfficialPrintCenter = lazy(() => import("./components/OfficialPrintCenter"));
 const SecurityAuditVault = lazy(() => import("./components/SecurityAuditVault"));
 const PublicVerifyPortal = lazy(() => import("./components/PublicVerifyPortal"));
@@ -685,7 +686,7 @@ export default function App() {
       title: lang === "ar" ? "الخدمات العامة" : "Public Services",
       showGroup: true,
       items: [
-        { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
+        { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "text-[#10B981]", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
         { id: "donation", label: t.navDonateNow || "تبرع الآن", icon: Coins, colorClass: "text-amber-500", bgColor: "bg-amber-500/20", show: featureFlags.module_donation !== false },
         { id: "verify", label: lang === "ar" ? "التحقق ومكافحة الاحتيال" : "Public Verify", icon: ShieldCheck, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: featureFlags.module_verify !== false },
         { id: "reports", label: t.navReports || "التقارير والمؤشرات", icon: FileText, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: featureFlags.module_reports !== false },
@@ -699,6 +700,7 @@ export default function App() {
         { id: "intake", label: lang === "ar" ? "بوابة التمكين وتسجيل حالة" : "Apply for Help", icon: UserCheck, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: !currentUser },
         { id: "cases", label: t.navAddBeneficiary || "الحالات الميدانية", icon: Heart, colorClass: "text-emerald-500", bgColor: "bg-emerald-500/20", show: !!currentUser && ["admin", "researcher", "charity", "field_coordinator"].includes(currentUser.role) },
         { id: "infrastructure", label: t.navHospitalsSchools || "المشاريع الكبرى", icon: Building2, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: featureFlags.module_projects !== false },
+        { id: "medical", label: lang === "ar" ? "القطاع الصحي والعلاجي" : "Health & Medical", icon: HeartPulse, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: true },
       ]
     },
     {
@@ -737,7 +739,7 @@ export default function App() {
             {/* COLLAPSIBLE SIDEBAR TOGGLER BUTTON (THREE BARS) */}
             <button
               onClick={() => { setSidebarOpen(!sidebarOpen); playAlertSound("click"); }}
-              className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 transition-all ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
+              className="p-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 transition-all text-[#10B981] cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
               title="تعديل القوائم الجانبية"
             >
               {sidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -750,7 +752,7 @@ export default function App() {
               </span>
               <div className="text-right">
                 <span className="text-xs font-black text-gray-50 block leading-none">{t.appName}</span>
-                <span className="text-[9px] ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} font-mono mt-0.5 block leading-none">{t.appSubName}</span>
+                <span className="text-[9px] text-[#10B981] font-mono mt-0.5 block leading-none">{t.appSubName}</span>
               </div>
             </div>
           </div>
@@ -764,7 +766,7 @@ export default function App() {
                 setTheme(theme === "light" ? "dark" : "light");
                 playAlertSound("click");
               }}
-              className="p-2 bg-slate-900 hover:bg-slate-800 text-gray-200 hover:${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} transition-all rounded-xl cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
+              className="p-2 bg-slate-900 hover:bg-slate-800 text-gray-200 hover:text-[#10B981] transition-all rounded-xl cursor-pointer border border-slate-800 flex items-center justify-center shadow-inner hover:scale-105 active:scale-95"
               title={theme === "light" ? "تفعيل النمط الداكن" : "تفعيل النمط الفاتح"}
               id="theme-mode-toggle-btn"
             >
@@ -781,7 +783,7 @@ export default function App() {
                 onClick={() => { setLangOpen(!langOpen); playAlertSound("click"); }}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-900 text-gray-200 hover:text-white hover:bg-slate-800 transition-colors rounded-xl cursor-pointer text-xs font-extrabold focus:outline-none border border-slate-800"
               >
-                <Globe className="w-3.5 h-3.5 ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}" />
+                <Globe className="w-3.5 h-3.5 text-[#10B981]" />
                 <span>{langOptions.find((o) => o.code === lang)?.label.split(" ")[0]}</span>
               </button>
               {langOpen && (
@@ -798,7 +800,7 @@ export default function App() {
                           playAlertSound("click");
                         }}
                         className={`w-full text-right px-3 py-2 rounded-xl text-xs hover:bg-slate-800 transition-colors block cursor-pointer font-bold ${
-                          lang === o.code ? "${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} bg-slate-950" : "text-gray-300"
+                          lang === o.code ? "text-[#10B981] bg-slate-950" : "text-gray-300"
                         }`}
                       >
                         {o.label}
@@ -831,7 +833,7 @@ export default function App() {
                 >
                   <div className="flex items-center justify-between border-b border-slate-800 pb-2">
                     <span className="font-extrabold text-sm text-gray-100 flex items-center gap-1.5">
-                      <Bell className="w-4 h-4 ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'}" />
+                      <Bell className="w-4 h-4 text-[#10B981]" />
                       {t.notifications || "التنبيهات"}
                     </span>
                     <div className="flex items-center gap-1">
@@ -890,7 +892,7 @@ export default function App() {
                   {unreadCount > 0 && (
                     <button
                       onClick={handleMarkAllAsRead}
-                      className="w-full text-center text-[10px] font-bold ${isWorkspace ? 'text-blue-400' : 'text-[#10B981]'} hover:underline pt-1 block cursor-pointer"
+                      className="w-full text-center text-[10px] font-bold text-[#10B981] hover:underline pt-1 block cursor-pointer"
                     >
                       {lang === "ar" ? "تعيين الكل كمقروء" : "Mark all as read"}
                     </button>
@@ -981,7 +983,6 @@ export default function App() {
                   
                   {visibleItems.map((item) => {
                     const isActive = activeTab === item.id;
-                    const isWorkspace = item.id === "workspace";
                     const Icon = item.icon;
                     return (
                       <button
@@ -989,13 +990,13 @@ export default function App() {
                         onClick={() => { setActiveTab(item.id as any); playAlertSound("click"); if (window.innerWidth < 768) setSidebarOpen(false); }}
                         className={`group relative w-full flex items-center justify-between p-2.5 rounded-xl transition-all duration-300 font-extrabold text-xs cursor-pointer overflow-hidden ${
                           isActive
-                            ? (isWorkspace ? "bg-gradient-to-r from-blue-900/40 to-slate-900 border border-blue-500/30 shadow-[0_0_15px_rgba(66,133,244,0.15)]" : "bg-gradient-to-r from-emerald-950 to-emerald-900 border border-emerald-800/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]")
+                            ? "bg-gradient-to-r from-emerald-950 to-emerald-900 border border-emerald-800/50 shadow-[0_0_15px_rgba(16,185,129,0.15)]"
                             : "border border-transparent hover:bg-slate-800/80 hover:border-slate-700 hover:shadow-lg"
                         }`}
                       >
                         {/* Active Glow indicator */}
                         {isActive && (
-                          <div className={`absolute top-0 left-0 w-1 h-full ${isWorkspace ? 'bg-blue-500 shadow-[0_0_10px_#4285F4]' : 'bg-[#10B981] shadow-[0_0_10px_#10B981]'}`}></div>
+                          <div className="absolute top-0 left-0 w-1 h-full bg-[#10B981] shadow-[0_0_10px_#10B981]"></div>
                         )}
                         
                         {/* Hover Glow effect */}
@@ -1003,13 +1004,13 @@ export default function App() {
 
                         <span className="flex items-center gap-2.5 flex-row-reverse w-full relative z-10">
                           <span className={`w-7 h-7 rounded-xl flex items-center justify-center shrink-0 transition-all duration-300 ${
-                            isActive
-                               ? (isWorkspace ? "bg-white text-blue-600 shadow-inner" : `${item.bgColor} ${item.colorClass} shadow-inner`)
-                               : (isWorkspace ? "bg-slate-900/80 text-blue-400/70 group-hover:bg-white group-hover:text-blue-600 group-hover:scale-110" : `bg-slate-900/80 text-slate-400 group-hover:${item.bgColor} group-hover:${item.colorClass} group-hover:scale-110`)
+                            isActive 
+                              ? `${item.bgColor} ${item.colorClass} shadow-inner` 
+                              : `bg-slate-900/80 text-slate-400 group-hover:${item.bgColor} group-hover:${item.colorClass} group-hover:scale-110`
                           }`}>
                             <Icon className="w-4 h-4" />
                           </span>
-                          <span className={`transition-all duration-300 group-hover:text-white ${isActive ? (isWorkspace ? 'text-blue-400' : 'text-[#10B981]') : "text-slate-300 group-hover:-translate-x-1"}`}>
+                          <span className={`transition-all duration-300 group-hover:text-white ${isActive ? "text-[#10B981]" : "text-slate-300 group-hover:-translate-x-1"}`}>
                             {item.label}
                           </span>
                         </span>
@@ -1159,6 +1160,10 @@ export default function App() {
               onApproveProject={handleApproveProjectByAdmin}
               lang={lang}
             />
+          )}
+
+          {activeTab === "medical" && (
+            <MedicalPortal lang={lang} />
           )}
           {activeTab === "infrastructure" && (
             <InfrastructurePortal

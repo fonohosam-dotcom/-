@@ -156,9 +156,9 @@ export const initialProjects: MajorProject[] = [
   {
     id: "proj-002",
     projectNumber: "MP-2026-0002",
-    category: "housing",
-    title: "ترميم منازل متهالكة في صبراتة",
-    description: "مشروع صيانة وتجديد التصدعات الخطيرة في القبة والأسقف لمنازل العائلات المتعففة ببلدية صبراتة، لحمايتهم من خطر سقوط الكتل الخرسانية.",
+    category: "mosque",
+    title: "ترميم الجدران وصيانة الأسقف المتصدعة لمسجد صبراتة العتيق",
+    description: "مشروع صيانة وتجديد التصدعات الخطيرة في القبة والأسقف لمسجد تاريخي يجمع المصلين ببلدية صبراتة، لحماية حرمة المسجد وحماية المصلين من خطر سقوط الكتل الخرسانية المتضررة من عوامل الطقس والرطوبة العالية.",
     municipality: "صبراتة",
     targetAmount: 45000,
     collectedAmount: 12000,
@@ -182,7 +182,7 @@ export const initialProjects: MajorProject[] = [
 ];
 
 export const initialFunds: Fund[] = [
-  { id: "f1", fundType: "صدقة", balance: 15400, totalIn: 18400, totalOut: 3000 },
+  { id: "f1", fundType: "زكاة", balance: 15400, totalIn: 18400, totalOut: 3000 },
   { id: "f2", fundType: "صدقة", balance: 9800, totalIn: 11000, totalOut: 1200 },
   { id: "f3", fundType: "كفالة_يتيم", balance: 5500, totalIn: 5500, totalOut: 0 },
   { id: "f4", fundType: "صدقة_جارية", balance: 22000, totalIn: 25000, totalOut: 3000 },
@@ -190,7 +190,7 @@ export const initialFunds: Fund[] = [
 ];
 
 export const initialLedger: LedgerEntry[] = [
-  { id: "le-001", entryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: "تأسيس صندوق صدقة المال بتمويل أولي", debitAccount: "الصندوق صدقة", creditAccount: "أرصدة المانحين التأسيسية", amount: 15400, createdBy: "النظام الآلي" },
+  { id: "le-001", entryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: "تأسيس صندوق زكاة المال بتمويل أولي", debitAccount: "الصندوق زكاة", creditAccount: "أرصدة المانحين التأسيسية", amount: 15400, createdBy: "النظام الآلي" },
   { id: "le-002", entryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: "تأسيس صندوق الصدقات العامة بتمويل أولي", debitAccount: "الصندوق صدقة", creditAccount: "أرصدة المانحين التأسيسية", amount: 9800, createdBy: "النظام الآلي" },
   { id: "le-003", entryDate: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), description: "تمويل بئر المياه - مشروع MP-2026-0001", debitAccount: "الصندوق صدقة_جارية", creditAccount: "أرصدة المانحين التأسيسية", amount: 18500, createdBy: "النظام الآلي" }
 ];

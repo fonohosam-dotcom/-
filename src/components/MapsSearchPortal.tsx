@@ -139,7 +139,7 @@ export default function MapsSearchPortal({
         </div>
         <h2 className="text-xl font-black">مركز الخرائط الذكية ومحرك البحث الاجتماعي</h2>
         <p className="text-xs text-emerald-100 opacity-90 leading-relaxed max-w-2xl">
-          تتبع فوري ومطابقة جغرافية لحالات العائلات المحتاجة ومشاريع الآبار والإسكان والمدعومة. نقوم بحجب البيانات الدقيقة للخصوصية ونظهر المؤشرات البلدية الكلية.
+          تتبع فوري ومطابقة جغرافية لحالات العائلات المحتاجة ومواقع المدارس والمستشفيات المقترحة والمدعومة. نقوم بحجب البيانات الدقيقة للخصوصية ونظهر المؤشرات البلدية الكلية.
         </p>
       </div>
 
@@ -167,7 +167,7 @@ export default function MapsSearchPortal({
               className="w-full bg-slate-900/80 border border-slate-800 focus:border-emerald-500 focus:outline-none rounded-xl p-3 text-xs text-white placeholder-gray-500 text-right"
               placeholder={aiMode === "search" 
                 ? "مثال: ما هي آخر أخبار إعادة إعمار درنة وصيانة الجسور فيها؟" 
-                : "مثال: أين يقع مشروع بئر غدامس وما هي ميزاته الجغرافية؟"
+                : "مثال: أين تقع مستشفى صبراتة التعليمي وما هي ميزاتها الجغرافية؟"
               }
               onKeyDown={(e) => {
                 if (e.key === "Enter") handleAISubmit();
@@ -691,7 +691,7 @@ export default function MapsSearchPortal({
             <div className="relative">
               <input
                 type="text"
-                placeholder="مثال: LY-2026-0001 أو بئر..."
+                placeholder="مثال: LY-2026-0001 أو مدرسة..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => {
@@ -786,6 +786,7 @@ export default function MapsSearchPortal({
               activeTab === "projects" ? "text-emerald-700 border-b-2 border-emerald-600 font-extrabold" : "text-gray-400"
             }`}
           >
+            المستشفيات والمدارس والمنشآت ({filteredProjects.length})
           </button>
         </div>
 
@@ -862,7 +863,7 @@ export default function MapsSearchPortal({
                   <div key={p.id} className="border border-slate-100 rounded-2xl p-4 bg-slate-50 flex flex-col justify-between space-y-3 hover:border-indigo-200 hover:shadow-sm transition-all text-right">
                     <div className="flex items-center justify-between">
                       <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded font-extrabold">
-                        {p.category === "well" ? "بئر" : p.category === "housing" ? "إسكان" : "بنية تحتية"}
+                        {p.category === "school" ? "مدرسة تعليمية" : p.category === "hospital" ? "مستشفى طبي" : "بنية تحتية"}
                       </span>
                       <span className="font-mono text-[10px] text-gray-400">{p.projectNumber}</span>
                     </div>
@@ -910,7 +911,7 @@ export default function MapsSearchPortal({
 
               {filteredProjects.length === 0 && (
                 <div className="col-span-full py-12 text-center text-gray-400 text-xs font-bold">
-                  لم نعثر على مشاريع مطابقة.
+                  لم نعثر على أي منشآت أو مدارس أو مستشفيات مطابقة لخيارات البحث الحالية.
                 </div>
               )}
             </div>

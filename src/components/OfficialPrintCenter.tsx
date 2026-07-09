@@ -37,7 +37,7 @@ export default function OfficialPrintCenter({
         </div>
         <h2 className="text-xl font-black">مركز التوثيق وطباعة السندات الرسمية المعتمدة</h2>
         <p className="text-xs text-gray-300 leading-relaxed">
-          قم بتوليد وطباعة سندات التبرع الإلكترونية، شهادات صرف أموال التبرعات والتمكين، أو التقارير المالية والرقابية الشاملة المختومة بشفرة النزاهة لإدارة التدقيق والجمعيات الخيرية.
+          قم بتوليد وطباعة سندات التبرع الإلكترونية، شهادات صرف أموال الزكاة والتمكين، أو التقارير المالية والرقابية الشاملة المختومة بشفرة النزاهة لديوان المحاسبة والجمعيات الخيرية.
         </p>
       </div>
 
@@ -126,7 +126,7 @@ export default function OfficialPrintCenter({
 
         {docType === "audit" && (
           <p className="text-xs text-gray-500 font-bold">
-            سيقوم النظام آلياً بجلب كافة الحركات المقيدة في دفتر الأستاذ المالي العام لطباعة ميزانية عمومية مطابقة لإدارة التدقيق.
+            سيقوم النظام آلياً بجلب كافة الحركات المقيدة في دفتر الأستاذ المالي العام لطباعة ميزانية عمومية مطابقة لديوان المحاسبة.
           </p>
         )}
 
@@ -152,9 +152,9 @@ export default function OfficialPrintCenter({
         {/* State / Official Header */}
         <div className="border-b-2 border-slate-900 pb-5 mb-6 flex items-center justify-between">
           <div className="text-right text-xs space-y-1 font-bold">
-            <p>ليبيا</p>
+            <p>دولة ليبيا</p>
             <p>الهيئة الوطنية للتكافل الاجتماعي الموحد</p>
-            <p>إدارة التدقيق والمطابقة المالية</p>
+            <p>ديوان المحاسبة والمطابقة المالية</p>
             <p className="font-mono text-[9px] text-gray-500">التاريخ: {new Date().toLocaleDateString("ar-LY")}</p>
           </div>
           
@@ -168,7 +168,7 @@ export default function OfficialPrintCenter({
           <div className="text-left text-xs space-y-1 font-bold">
             <p>رقم المستند: SEC-2026-{(Math.random() * 10000).toFixed(0)}</p>
             <p>حالة التدقيق: مطابقة ومؤمنة</p>
-            <p>بوابة حوكمة إدارة التدقيق</p>
+            <p>بوابة حوكمة ديوان المحاسبة</p>
             <p className="font-mono text-[9px] text-gray-500">الوقت: {new Date().toLocaleTimeString("ar-LY")}</p>
           </div>
         </div>
@@ -207,7 +207,7 @@ export default function OfficialPrintCenter({
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-lg font-black underline underline-offset-4 decoration-2">شهادة اعتماد وصرف ميزانية تمكين اجتماعي</h3>
-              <p className="text-xs text-gray-500">صادر عن هيئة التدقيق والمطابقة للصدقات</p>
+              <p className="text-xs text-gray-500">صادر عن هيئة التدقيق والمطابقة الشرعية للزكاة والصدقات</p>
             </div>
 
             <div className="text-sm space-y-4 pt-4 border-t border-slate-200">
@@ -237,7 +237,7 @@ export default function OfficialPrintCenter({
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-lg font-black underline underline-offset-4 decoration-2">تقرير حوكمة الحركات والقيود المالية المزدوجة</h3>
-              <p className="text-xs text-gray-500">دفتر أستاذ إدارة التدقيق وهيئة الرقابة الإدارية للتكافل</p>
+              <p className="text-xs text-gray-500">دفتر أستاذ ديوان المحاسبة وهيئة الرقابة الإدارية للتكافل</p>
             </div>
 
             <div className="text-xs space-y-4 pt-4 border-t border-slate-200 font-sans">

@@ -26,13 +26,13 @@ export default function InfrastructurePortal({
   onUpdateProject,
   view = "list",
 }: InfrastructurePortalProps) {
-  const [selectedCategory, setSelectedCategory] = useState<"all" | "well" | "orphan_care" | "housing">("all");
+  const [selectedCategory, setSelectedCategory] = useState<"all" | "school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("all");
   const navigate = useNavigate();
   const showAddForm = view === "new";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [targetAmount, setTargetAmount] = useState(150000);
-  const [category, setCategory] = useState<"well" | "orphan_care" | "housing">("well");
+  const [category, setCategory] = useState<"school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("school");
   const [municipality, setMunicipality] = useState("صبراتة");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [successMsg, setSuccessMsg] = useState("");
@@ -42,7 +42,7 @@ export default function InfrastructurePortal({
   const [editTitle, setEditTitle] = useState("");
   const [editDesc, setEditDesc] = useState("");
   const [editTargetAmount, setEditTargetAmount] = useState(150000);
-  const [editCategory, setEditCategory] = useState<"well" | "orphan_care" | "housing">("well");
+  const [editCategory, setEditCategory] = useState<"school" | "hospital" | "mosque" | "well" | "orphan_care" | "housing">("school");
   const [editMunicipality, setEditMunicipality] = useState("صبراتة");
 
   const filteredProjects = selectedCategory === "all" 
@@ -95,6 +95,9 @@ export default function InfrastructurePortal({
 
   const getIcon = (cat: string) => {
     switch (cat) {
+      case "school": return <School className="w-5 h-5 text-indigo-600" />;
+      case "hospital": return <Activity className="w-5 h-5 text-rose-600" />;
+      case "mosque": return <Landmark className="w-5 h-5 text-emerald-600" />;
       case "well": return <Compass className="w-5 h-5 text-sky-600" />;
       default: return <Building2 className="w-5 h-5 text-amber-600" />;
     }
@@ -102,6 +105,9 @@ export default function InfrastructurePortal({
 
   const getCategoryLabel = (cat: string) => {
     switch (cat) {
+      case "school": return "مدرسة تعليمية";
+      case "hospital": return "مستشفى طبي";
+      case "mosque": return "مسجد عتيق";
       case "well": return "بئر مياه";
       case "orphan_care": return "رعاية أيتام";
       case "housing": return "مسكن عائلي";
@@ -138,14 +144,14 @@ export default function InfrastructurePortal({
         <div className="absolute top-0 right-0 w-full h-full bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-indigo-950/30 via-[#0D1B2A] to-[#0D1B2A] -z-10"></div>
         <div className="space-y-1.5 flex-1">
           <span className="bg-indigo-950 text-indigo-400 text-[10px] font-black px-3 py-1 rounded-full border border-indigo-500/20 uppercase tracking-widest">
-            مشاريع التنمية والآبار والسكن
+            البنية التحتية والمنشآت العمومية الموحدة
           </span>
           <h2 className="text-2xl font-black flex items-center gap-2 flex-row-reverse justify-end mt-1 text-gray-50">
-            <span>💧</span>
-            بوابة الآبار والمشاريع التنموية والإسكان
+            <span>🏫</span>
+            بوابة المدارس والمساجد والآبار والمشاريع التنموية
           </h2>
           <p className="text-xs text-indigo-100/70 leading-relaxed max-w-2xl">
-            إعمار وتجهيز آبار الإمداد المائي ومشاريع الإسكان ببلديات ليبيا. نقوم بدراسة الاحتياج وإدراج المشاريع ومراقبة التبرعات بمطابقة 100%.
+            إعمار وتجهيز المرافق الصحية والتعليمية والمساجد وحفر آبار الإمداد المائي ببلديات ليبيا. نقوم بدراسة الاحتياج وإدراج المشاريع ومراقبة تبرعات التجهيز بمطابقة 100%.
           </p>
         </div>
         <button
@@ -153,7 +159,7 @@ export default function InfrastructurePortal({
           className="bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold text-xs px-6 py-3 rounded-2xl shadow-lg transition-all cursor-pointer flex items-center gap-1.5 whitespace-nowrap border border-indigo-500/20"
         >
           <span>➕</span>
-          <span>إضافة بئر / سكن / مشروع تنموي</span>
+          <span>إضافة مسجد / بئر / مشروع تنموي</span>
         </button>
       </div>
 
@@ -181,7 +187,7 @@ export default function InfrastructurePortal({
                   <label className="text-xs font-bold text-gray-700">عنوان المشروع / المنشأة المقترحة*</label>
                   <input
                     type="text"
-                    placeholder="مثال: حفر بئر التضامن العميق أو ترميم منزل"
+                    placeholder="مثال: مسجد الفرقان الكبير أو حفر بئر التضامن العميق"
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-right"
@@ -196,6 +202,9 @@ export default function InfrastructurePortal({
                     onChange={(e) => setCategory(e.target.value as any)}
                     className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3.5 py-2.5 text-xs text-right font-bold text-indigo-950"
                   >
+                    <option value="school">مدرسة تعليمية أساسية / ثانوية</option>
+                    <option value="hospital">مستشفى عام / قسم طوارئ تخصصي</option>
+                    <option value="mosque">مسجد / مركز تحفيظ وعلوم شرعية</option>
                     <option value="well">بئر مياه عميق لبلدية عطشى</option>
                     <option value="orphan_care">دار رعاية أيتام ونقاهة أسرية</option>
                     <option value="housing">ترميم مجمع سكني عائلي متهالك</option>
@@ -272,6 +281,9 @@ export default function InfrastructurePortal({
       <div className="bg-white border border-[#E5E3DA] rounded-2xl p-4 flex flex-wrap gap-2 justify-start flex-row-reverse">
         {[
           { code: "all", label: "الكل 📁" },
+          { code: "school", label: "مدارس 🏫" },
+          { code: "hospital", label: "مستشفيات 🏥" },
+          { code: "mosque", label: "مساجد 🕌" },
           { code: "well", label: "آبار مياه 💧" },
           { code: "orphan_care", label: "أيتام 🧒" },
           { code: "housing", label: "ترميم مساكن 🏠" }

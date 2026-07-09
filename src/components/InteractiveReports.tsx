@@ -98,7 +98,8 @@ export default function InteractiveReports({
     // Proportionally scale balance if not 'all' for visual consistency
     const fraction = timeFilter === "all" ? 1 : timeFilter === "1year" ? 0.8 : timeFilter === "90days" ? 0.4 : 0.15;
     return {
-      name: f.fundType === "صدقة" ? "أموال الصدقات" : 
+      name: f.fundType === "زكاة" ? "أموال الزكاة الشرعية" : 
+            f.fundType === "صدقة" ? "صدقات عامة" :
             f.fundType === "كفالة_يتيم" ? "كفالات الأيتام" :
             f.fundType === "صدقة_جارية" ? "صدقات جارية ومستمرة" : "مخصصات الطوارئ",
       value: Math.round(f.balance * fraction)
@@ -634,7 +635,7 @@ export default function InteractiveReports({
             <div className="flex justify-between items-start border-b-2 border-emerald-800 pb-5 flex-row-reverse">
               <div className="text-right space-y-1">
                 <h1 className="text-lg font-black text-emerald-900">الجمهورية الليبية</h1>
-                <h2 className="text-sm font-black text-slate-700">إدارة منصة التكافل</h2>
+                <h2 className="text-sm font-black text-slate-700">وزارة الشؤون الاجتماعية / الهيئة العامة للتكافل</h2>
                 <h3 className="text-xs font-bold text-slate-500">السجل الوطني الموحد للمساعدات الخيرية</h3>
               </div>
               <div className="flex flex-col items-center justify-center border-2 border-emerald-800/30 p-2.5 rounded-2xl bg-emerald-50/30">

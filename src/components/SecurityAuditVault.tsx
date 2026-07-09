@@ -454,7 +454,7 @@ export default function SecurityAuditVault({
               </div>
               <div className="space-y-1">
                 <p className="text-xs font-black text-slate-800">هل ترغب في التحقق من سلامة الأرصدة؟</p>
-                <p className="text-[10px] text-gray-400">انقر لبدء فحص الهاشات والنزاهة المالية ومطابقة القيود مع إدارة التدقيق.</p>
+                <p className="text-[10px] text-gray-400">انقر لبدء فحص الهاشات والنزاهة المالية ومطابقة القيود مع ديوان المحاسبة.</p>
               </div>
               <button
                 onClick={runSystemAudit}
@@ -646,7 +646,7 @@ export default function SecurityAuditVault({
           <div className="text-right">
             <h3 className="font-black text-slate-900 text-sm">شهادة المطابقة وبراءة الذمة المالية والإدارية المعتمدة</h3>
             <p className="text-xs text-gray-400 mt-0.5">
-              قم بتوليد براءة ذمة مالية معتمدة ومطابقة لإدارة التدقيق لبلدية معينة، تثبت سلامة التبرعات والمصروفات بالكامل.
+              قم بتوليد براءة ذمة مالية معتمدة ومطابقة لديوان المحاسبة لبلدية معينة، تثبت سلامة التبرعات والمصروفات بالكامل.
             </p>
           </div>
 
@@ -691,8 +691,8 @@ export default function SecurityAuditVault({
             {/* Certificate Header */}
             <div className="border-b-2 border-slate-900 pb-4 mb-4 flex justify-between items-center text-xs font-bold">
               <div className="text-right space-y-0.5">
-                <p>ليبيا</p>
-                <p>إدارة الرقابة والتدقيق المالي</p>
+                <p>دولة ليبيا</p>
+                <p>ديوان الرقابة الإدارية والمحاسبة المالية</p>
                 <p>الهيئة الوطنية للتكافل الاجتماعي الموحد</p>
               </div>
               <div className="text-center font-black space-y-1">
@@ -709,13 +709,13 @@ export default function SecurityAuditVault({
             {/* Certificate Title */}
             <div className="text-center space-y-1.5">
               <h4 className="text-base font-black underline underline-offset-4 decoration-2">شهادة براءة ذمة مالية وإدارية ومطابقة النزاهة الكلية</h4>
-              <p className="text-[10px] text-gray-500">تصدر عن بوابة النزاهة وحوكمة السجلات الموحدة بالتنسيق مع إدارة الرقابة</p>
+              <p className="text-[10px] text-gray-500">تصدر عن بوابة النزاهة وحوكمة السجلات الموحدة بالتنسيق مع ديوان الرقابة</p>
             </div>
 
             {/* Body */}
             <div className="text-xs space-y-3 pt-2 text-right">
               <p className="leading-loose">
-                يشهد إدارة الرقابة والمطابقة الوطنية للتكافل الاجتماعي، بناءً على الفحص الرياضي المالي المؤتمت لجميع قيود دفتر الأستاذ العام المزدوج، بأن بلدية: 
+                يشهد ديوان الرقابة والمطابقة المالية بالهيئة الوطنية للتكافل الاجتماعي، بناءً على الفحص الرياضي المالي المؤتمت لجميع قيود دفتر الأستاذ العام المزدوج، بأن بلدية: 
                 <span className="font-black px-1.5 text-emerald-800 text-sm"> « بلدية {certificateMunicipality} » </span> 
                 قد خضعت لتدقيق النزاهة والتحقق الرقمي لجميع المساهمات المحصلة والمساعدات المصروفة.
               </p>
@@ -740,7 +740,7 @@ export default function SecurityAuditVault({
             <div className="border-t border-slate-300 pt-6 flex justify-between items-end text-xs font-bold">
               
               <div className="text-center space-y-2 flex flex-col items-center">
-                <span className="text-[10px] text-gray-400">ختم إدارة التدقيق والمطابقة الموحد</span>
+                <span className="text-[10px] text-gray-400">ختم ديوان المحاسبة والمطابقة الموحد</span>
                 <div className="w-16 h-16 border-2 border-dashed border-emerald-600 rounded-full flex flex-col items-center justify-center text-emerald-700 rotate-12 bg-emerald-50/20 text-[8px] font-black leading-tight shadow-inner">
                   <span>مـطـابـق</span>
                   <span>لجنة التكافل</span>

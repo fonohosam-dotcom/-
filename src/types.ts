@@ -87,7 +87,7 @@ export interface Case {
 export interface MajorProject {
   id: string;
   projectNumber: string;
-  category: "well" | "orphan_care" | "housing";
+  category: "mosque" | "well" | "hospital" | "school" | "orphan_care" | "housing";
   title: string;
   description: string;
   municipality: string;
@@ -105,7 +105,7 @@ export interface OmniTransaction {
   donorNameOverride?: string;
   caseId?: string;
   projectId?: string;
-  fundType: "صدقة" | "كفالة_يتيم" | "صدقة_جارية" | "طوارئ";
+  fundType: "زكاة" | "صدقة" | "كفالة_يتيم" | "صدقة_جارية" | "طوارئ";
   amount: number;
   currency: string;
   displayAmount: number;
@@ -132,7 +132,7 @@ export interface LedgerEntry {
 
 export interface Fund {
   id: string;
-  fundType: "صدقة" | "كفالة_يتيم" | "صدقة_جارية" | "طوارئ";
+  fundType: "زكاة" | "صدقة" | "كفالة_يتيم" | "صدقة_جارية" | "طوارئ";
   balance: number;
   totalIn: number;
   totalOut: number;

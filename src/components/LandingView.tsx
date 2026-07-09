@@ -36,7 +36,7 @@ interface LandingViewProps {
   funds: Fund[];
   onSubmitReport: (reportData: any) => Promise<void>;
   onNavigateToDonor: () => void;
-  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify" | "medical" | "intake") => void;
+  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify" | "medical") => void;
   activeGeoSOS?: string | null;
   lang?: "ar" | "en" | "zh" | "fr" | "ru";
   reports?: any[];
@@ -344,10 +344,10 @@ export default function LandingView({
               التكامل التقني للحوكمة والشفافية التكافلية
             </span>
             <h1 className="text-3xl md:text-5xl font-black tracking-tight leading-tight font-sans">
-              منصة التكافل الذكية <span className="text-emerald-300">V2</span>
+              منصة التكافل الوطني الذكية <span className="text-emerald-300">V2</span>
             </h1>
             <p className="text-xs md:text-sm opacity-90 leading-relaxed font-light text-slate-100 max-w-3xl">
-              السجل الوطني الموحد للمستفيدين وخدمات التمكين الاجتماعي والمساعدات العينية والمالية الموثقة. نربط المانحين والباحثين الاجتماعيين والجمعيات الخيرية واللجان الميدانية الشريكة مباشرة بشفافية مطلقة محاسبياً وشرعياً تحت رقابة لجنة الرقابة.
+              السجل الوطني الموحد للمستفيدين وخدمات التمكين الاجتماعي والمساعدات العينية والمالية الموثقة. نربط المانحين والباحثين الاجتماعيين والجمعيات الوطنية واللجان الميدانية الشريكة مباشرة بشفافية مطلقة محاسبياً وشرعياً تحت رقابة ديوان المحاسبة العام.
             </p>
           </div>
         </div>
@@ -395,7 +395,7 @@ export default function LandingView({
               <ArrowLeft className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 group-hover:translate-x-[-4px] transition-all" />
             </h3>
             <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed">
-              استكشف الحالات الإنسانية المتعففة، آبار ومساكن محتاجة للترميم، وتبرع بأمان تام بنظام التوقيع العشري والمحفظة الرقمية.
+              استكشف الحالات الإنسانية المتعففة، مدارس ومستشفيات معطلة، وتبرع بأمان تام بنظام التوقيع العشري والمحفظة الرقمية.
             </p>
           </button>
 
@@ -635,7 +635,7 @@ export default function LandingView({
               <form onSubmit={(e) => { e.preventDefault(); setIntakeStep(3); }} className="space-y-6">
                 <div className="p-4 bg-slate-50 dark:bg-slate-950 rounded-2xl border border-slate-100 dark:border-slate-800">
                   <h4 className="font-extrabold text-xs text-slate-600 dark:text-slate-400 mb-1">الخطوة الثانية: الهوية الليبية، بيانات السكن والحساب المصرفي</h4>
-                  <p className="text-[11px] text-slate-400">تستخدم هذه البيانات فقط للمطابقة مع السجل المدني لضمان وصول الدعم المالي مباشرة لآيبان المستفيد.</p>
+                  <p className="text-[11px] text-slate-400">تستخدم هذه البيانات فقط للمطابقة مع مصلحة الأحوال المدنية وديوان مصرف ليبيا المركزي لضمان وصول الدعم المالي مباشرة لآيبان المستفيد.</p>
                 </div>
 
                 {/* Realtime Estimated Priority Score Gauge */}
@@ -848,7 +848,7 @@ export default function LandingView({
                   <div className="border border-dashed border-slate-200 dark:border-slate-800 rounded-3xl p-5 text-center space-y-3 bg-slate-50/50 dark:bg-slate-950/20">
                     <span className="text-2xl block">💳</span>
                     <h5 className="font-extrabold text-xs text-slate-800 dark:text-slate-200">صورة بطاقة الرقم الوطني</h5>
-                    <p className="text-[10px] text-slate-400">مستند إثبات الرقم الوطني الصادر عن السجل المدني</p>
+                    <p className="text-[10px] text-slate-400">مستند إثبات الرقم الوطني الصادر عن مصلحة الأحوال المدنية</p>
                     
                     {uploadedDocs.nationalIdCard ? (
                       <div className="flex items-center gap-2 p-2 bg-emerald-50 dark:bg-emerald-950/30 rounded-xl border border-emerald-100 dark:border-emerald-900/40 text-right">
@@ -936,7 +936,7 @@ export default function LandingView({
                     disabled={isSubmittingReport}
                     className="bg-emerald-600 hover:bg-emerald-700 text-white font-black px-10 py-3 rounded-xl text-xs flex items-center gap-1.5 cursor-pointer shadow-md shadow-emerald-900/10"
                   >
-                    {isSubmittingReport ? "جاري معالجة وربط الملف..." : "إرسال طلب التمكين للمنصة 🚀"}
+                    {isSubmittingReport ? "جاري معالجة وربط الملف..." : "إرسال طلب التمكين للديوان الوطني 🚀"}
                   </button>
                 </div>
               </div>
@@ -963,7 +963,7 @@ export default function LandingView({
                     <span className="font-bold">✉️ رسالة قصيرة جديدة</span>
                   </div>
                   <div className="space-y-1">
-                    <p className="font-black text-xs text-emerald-400">من: منصة التكافل (Takaful-LY)</p>
+                    <p className="font-black text-xs text-emerald-400">من: منصة التكافل الوطني (Takaful-LY)</p>
                     <p className="text-[11px] leading-relaxed text-slate-100">
                       "عزيزي المواطن، تم استلام طلبك رقم <span className="font-mono text-emerald-300">TK-2026-{(Math.random()*90000+10000).toFixed(0)}</span> لـ {selectedCat.title} بنجاح. رمز التأكيد الوطني الخاص بك هو: <span className="font-mono font-bold text-amber-300">2291.95</span>. سيقوم الباحث الميداني بالاتصال بك قريباً على الرقم {phone}."
                     </p>

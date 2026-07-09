@@ -87,7 +87,7 @@ export default function PublicVerifyPortal({
         setVerifyError(errData.message || "السند المالي غير مسجل في السجل الوطني الموحد لمطابقة الحوكمة.");
       }
     } catch (err) {
-      setVerifyError("عطل في الاتصال بخوادم إدارة الرقابة.");
+      setVerifyError("عطل في الاتصال بخوادم ديوان الرقابة المالية.");
     } finally {
       setLoadingVerify(false);
     }
@@ -449,7 +449,7 @@ export default function PublicVerifyPortal({
                     value={reporterContact}
                     onChange={(e) => setReporterContact(e.target.value)}
                     className="w-full border border-[#E5E3DA] rounded-xl p-2.5 font-sans focus:outline-none focus:ring-1 focus:ring-emerald-500 text-center"
-                    placeholder="لهدف تواصل فريق التدقيق..."
+                    placeholder="لهدف تواصل ديوان التدقيق..."
                   />
                 </div>
               </div>
@@ -537,7 +537,7 @@ export default function PublicVerifyPortal({
                   <span>سجل البلاغات وتقارير المجتمع الحالية (الشفافية الاجتماعية)</span>
                 </h3>
                 <p className="text-[11px] text-gray-500 mt-0.5">
-                  استعراض لجميع البلاغات والتقارير المرفوعة للرقابة مع متابعة لحظية لحالة الإجراء المتخذ من قبل فريق التدقيق الميداني.
+                  استعراض لجميع البلاغات والتقارير المرفوعة للرقابة مع متابعة لحظية لحالة الإجراء المتخذ من قبل ديوان التدقيق الميداني.
                 </p>
               </div>
               <span className="bg-rose-50 text-rose-700 px-3 py-1 rounded-full text-[10px] font-black border border-rose-100">

@@ -663,7 +663,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
               إذا لم ترغب في تحديد حالة معينة، يمكنك توجيه تبرعك لأحد الصناديق الشرعية ليتم توزيعها حسب الأولويات.
             </p>
             <div className="space-y-2">
-              {["صدقة", "كفالة_يتيم", "صدقة_جارية", "طوارئ"].map((fund) => (
+              {["زكاة", "صدقة", "كفالة_يتيم", "صدقة_جارية", "طوارئ"].map((fund) => (
                 <button
                   key={fund}
                   onClick={() => {
@@ -761,7 +761,7 @@ const [tempGoal, setTempGoal] = useState(annualGoal);
                     )}
                     <div className="p-4 flex-1 flex flex-col justify-between">
                       <div>
-                        <span className="text-[9px] uppercase font-bold text-sky-600 font-mono">{p.projectNumber} | {p.category === "well" ? "بئر ماء" : "رعاية أيتام"}</span>
+                        <span className="text-[9px] uppercase font-bold text-sky-600 font-mono">{p.projectNumber} | {p.category === "well" ? "بئر ماء" : p.category === "mosque" ? "مسجد" : "رعاية أيتام"}</span>
                         <h5 className="font-bold text-sm text-gray-900 mt-1 mb-2 line-clamp-1">{p.title}</h5>
                         <p className="text-xs text-gray-500 line-clamp-2 mb-3">{p.description}</p>
                       </div>
