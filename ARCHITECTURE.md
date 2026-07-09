@@ -76,3 +76,32 @@
 - **الواجهة والخادم**: يتم بناء الخادم مع ملفات الواجهة الأمامية ليُخدَّم من خلال خادم Node.js واحد باستخدام ملف `Dockerfile`.
 - **الاستضافة**: المنصة مهيأة للعمل على أي خدمة حاويات مثل **Google Cloud Run**، **AWS Fargate**، أو **Docker Swarm**.
 - **البيئة المحلية**: يمكن للمطورين تشغيل قاعدة بيانات PostgreSQL محلياً باستخدام `docker-compose.yml` المرفق مع المشروع.
+
+## ERD (Entity Relationship Diagram)
+- **Users**: (id, role, email, password_hash, status)
+- **Cases**: (id, title, description, targetAmount, currentAmount, category, status, lat, lng, createdBy)
+- **MajorProjects**: (id, title, description, budget, currentFunding, status, expectedCompletion, category, votes)
+- **LedgerEntries**: (id, caseId, amount, type, relatedDonationId, createdAt)
+- **CommunityReports**: (id, reporterId, caseId, description, evidenceUrl, status)
+- **Funds**: (id, type, balance, totalIn, totalOut)
+
+## API Endpoints (Swagger/OpenAPI style summary)
+### Auth
+- \`POST /api/auth/register\`: Register a new user
+- \`POST /api/auth/login\`: Authenticate and get JWT
+
+### Cases
+- \`GET /api/cases\`: List all cases
+- \`POST /api/cases\`: Create a new case
+- \`PUT /api/cases/:id/status\`: Update case status
+- \`POST /api/cases/:id/disburse\`: Close a funded case and disburse funds
+
+### AI & Integrations
+- \`POST /api/ai/fatwa\`: Get AI consultation on Zakat
+- \`POST /api/ai/describe-image\`: AI analysis of case images
+- \`POST /api/ai/scan-document\`: AI OCR for medical/national ID documents
+- \`POST /api/ai/reconstruction-search\`: AI Google Grounded Search for rebuilding efforts
+
+## Migration Strategy
+- Development: `SQLite` via `better-sqlite3`.
+- Production: Migration plan to `PostgreSQL` using Drizzle ORM when scaling up, with Redis for session caching.

@@ -1,3 +1,4 @@
+import DOMPurify from "isomorphic-dompurify";
 import { logger } from "../lib/logger.ts";
 
 import authRoutes from "./routes/auth.js";
@@ -114,7 +115,37 @@ app.use("/api/", apiLimiter);
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
 
+
+// Request logging
+app.use((req, res, next) => {
+  logger.info(`${req.method} ${req.url}`);
+  next();
+});
+
+// JSON parsing must be before routes
 app.use(express.json({ limit: "50mb" }));
+
+// DOMPurify Input Sanitization Middleware
+app.use((req, res, next) => {
+  if (req.body) {
+    const sanitizeObj = (obj: any) => {
+      for (const key in obj) {
+        if (typeof obj[key] === 'string') {
+          obj[key] = DOMPurify.sanitize(obj[key]);
+        } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+          sanitizeObj(obj[key]);
+        }
+      }
+    };
+    sanitizeObj(req.body);
+  }
+  next();
+});
+
+// Use routes
+app.use("/api/auth", authRoutes);
+app.use("/api/cases", casesRoutes);
+
 
 // --- AES-256-GCM Encryption Key and Automatic Body Decryption Middleware ---
 const AES_KEY_HEX = process.env.AES_SECRET_KEY || (process.env.NODE_ENV === "production" ? "" : "d3b07384d113edec49eaa6238ad5ff0022f4c028b3e89cd3000b1a03efcb773d");
