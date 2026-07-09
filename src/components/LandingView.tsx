@@ -36,7 +36,7 @@ interface LandingViewProps {
   funds: Fund[];
   onSubmitReport: (reportData: any) => Promise<void>;
   onNavigateToDonor: () => void;
-  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify" | "medical") => void;
+  onNavigateToTab?: (tab: "home" | "cases" | "infrastructure" | "map" | "donation" | "reports" | "printing" | "security" | "supervision" | "verify" | "medical" | "intake") => void;
   activeGeoSOS?: string | null;
   lang?: "ar" | "en" | "zh" | "fr" | "ru";
   reports?: any[];

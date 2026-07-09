@@ -8,8 +8,10 @@ describe('CitizenPortal Component', () => {
     id: "u1",
     role: "citizen" as const,
     name: "مواطن تجريبي",
+    fullName: "مواطن تجريبي",
     email: "citizen@example.com",
-    nationalId: "111222333"
+    nationalId: "111222333",
+    gamificationPoints: 0
   };
 
   it('renders the portal with empty case state', () => {

@@ -1,24 +1,9 @@
-import { drizzle } from 'drizzle-orm/node-postgres';
-import { Pool } from 'pg';
+import { drizzle } from 'drizzle-orm/better-sqlite3';
+import Database from 'better-sqlite3';
 import * as schema from './schema.ts';
 
-// Function to create a new connection pool.
-export const createPool = () => {
-  return new Pool({
-    host: process.env.SQL_HOST,
-    user: process.env.SQL_USER,
-    password: process.env.SQL_PASSWORD,
-    database: process.env.SQL_DB_NAME,
-    connectionTimeoutMillis: 15000,
-  });
-};
+// Use a local file for SQLite database
+const sqlite = new Database('sqlite.db');
 
-const pool = createPool();
-
-// Prevent unhandled pool-level errors from crashing the application
-pool.on('error', (err) => {
-  console.error('Unexpected error on idle SQL pool client:', err);
-});
-
-// Initialize Drizzle with the pool and schema.
-export const db = drizzle(pool, { schema });
+// Initialize Drizzle with the database and schema
+export const db = drizzle(sqlite, { schema });

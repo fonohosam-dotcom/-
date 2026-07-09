@@ -19,14 +19,14 @@ describe('DonorPortal Component', () => {
 
   it('renders the header correctly', () => {
     render(<DonorPortal {...defaultProps} />);
-    const header = screen.getByText(/بوابة المتبرع الذكية/i);
+    const header = screen.getByText(/لوحة التبرعات/i);
     expect(header).toBeInTheDocument();
   });
 
   it('renders quick donation buttons', () => {
     render(<DonorPortal {...defaultProps} />);
     // Just verify the component renders without crashing
-    const header = screen.getByText(/بوابة المتبرع الذكية/i);
+    const header = screen.getByText(/لوحة التبرعات/i);
     expect(header).toBeInTheDocument();
   });
 

@@ -3,7 +3,9 @@
   "appId": "1:955885075160:web:e51f264928347fa649f5ad",
   "apiKey": "AIzaSyC-1kGFDbAvzRUmr6VQAJHqDatv9RlNNJE",
   "authDomain": "local-experience-b5jvd.firebaseapp.com",
+  "firestoreDatabaseId": "ai-studio-remix-ee94e9e5-bd91-4888-b285-bac84b725de1",
   "storageBucket": "local-experience-b5jvd.firebasestorage.app",
   "messagingSenderId": "955885075160",
-  "measurementId": ""
+  "measurementId": "",
+  "oAuthClientId": "955885075160-un3s7fihnll4ggk0262c0r8n1qtqb79c.apps.googleusercontent.com"
 }
