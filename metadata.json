@@ -1,5 +1,5 @@
 {
-  "name": "Remix: منصة التكافل الوطني الذكية",
+  "name": "takaful-platform",
   "description": "السجل الوطني الموحد للمساعدات والتمكين الاجتماعي والتحقق الميداني وعقد الصدقات الجارية الموثقة.",
   "requestFramePermissions": [
     "camera"

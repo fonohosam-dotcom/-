@@ -1,20 +1,64 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Takaful Platform (منصة تكافل)
 
-# Run and deploy your AI Studio app
+منصة اجتماعية متكاملة تهدف إلى إدارة التكافل الاجتماعي والزكاة والدعم الصحي، وبناء شبكة مترابطة لتوفير المساعدات وإدارة الحالات الإنسانية بفعالية وشفافية عالية.
 
-This contains everything you need to run your app locally.
+## 🌟 الرؤية والأهداف
+تسعى منصة "تكافل" إلى رقمنة وتنظيم العمل الخيري والمجتمعي، وتقديم بيئة آمنة وشفافة للربط بين المتبرعين، والباحثين الاجتماعيين، والجهات الخيرية، والمواطنين المحتاجين. يهدف المشروع إلى:
+- تسهيل وصول الدعم لمستحقيه.
+- تقديم نظام شفاف لتتبع التبرعات (سجل الأستاذ/Ledger).
+- توفير أدوات ذكية (باستخدام الذكاء الاصطناعي) لتقييم الحالات وتوزيع الموارد.
 
-View your app in AI Studio: https://ai.studio/apps/ee94e9e5-bd91-4888-b285-bac84b725de1
+## ✨ الميزات الرئيسية
+- **بوابات متعددة**: واجهات مخصصة لكل من المواطن، المتبرع، الباحث الاجتماعي، الطبيب، والجهة الخيرية.
+- **التكافل الصحي**: إدارة ملفات المرضى، الأدوية، والمعدات الطبية.
+- **إدارة الحالات**: متابعة دقيقة لكل حالة إنسانية منذ تسجيلها وحتى تلبية احتياجاتها.
+- **سجل مالي شفاف**: نظام متكامل (Ledger) لمتابعة التبرعات والمصروفات.
+- **الذكاء الاصطناعي**: توظيف Gemini AI لتحليل البيانات وتقديم توصيات حول الحالات.
+- **نظام أمان متقدم**: حماية عبر التشفير (AES-256-GCM) ونظام توثيق وحماية ضد هجمات DDoS والتلاعب بالبيانات.
 
-## Run Locally
+## 🏗️ هيكلية المشروع
+تم بناء المشروع باستخدام أحدث التقنيات:
+- **الواجهة الأمامية**: React, TypeScript, Vite, Tailwind CSS, Recharts, Leaflet.
+- **الواجهة الخلفية (الخادم)**: Node.js, Express.js.
+- **قاعدة البيانات**: PostgreSQL باستخدام Drizzle ORM (مجهزة).
+- **المصادقة والأمان**: Firebase Authentication & Admin SDK, JWT, Helmet.
+- **الذكاء الاصطناعي**: Google Gemini API.
 
-**Prerequisites:**  Node.js
+## 🚀 كيفية الإعداد والتشغيل (Setup)
 
+### 1. المتطلبات الأساسية
+- Node.js (الإصدار 18 فما فوق).
+- PostgreSQL.
+- حساب Firebase (لإعداد المصادقة).
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+### 2. تثبيت الحزم
+```bash
+npm install
+```
+
+### 3. إعداد المتغيرات البيئية
+قم بنسخ ملف `.env.example` إلى `.env` وقم بتعبئة القيم المطلوبة:
+```bash
+cp .env.example .env
+```
+أهم المتغيرات المطلوبة:
+- `DATABASE_URL`: رابط الاتصال بقاعدة بيانات PostgreSQL.
+- `GEMINI_API_KEY`: مفتاح API الخاص بـ Gemini.
+- إعدادات Firebase (`FIREBASE_PROJECT_ID`, `FIREBASE_CLIENT_EMAIL`, `FIREBASE_PRIVATE_KEY`).
+
+### 4. تشغيل المشروع محلياً
+```bash
+# لتشغيل واجهة المستخدم والخادم في وضع التطوير
+npm run dev
+```
+
+### 5. البناء (Build) للإنتاج
+```bash
+npm run build
+npm start
+```
+
+## 📜 التراخيص والسياسات
+- يرجى مراجعة [LICENSE](LICENSE) لمعرفة شروط الترخيص.
+- يرجى قراءة [CONTRIBUTING.md](CONTRIBUTING.md) لمعرفة كيفية المساهمة في المشروع.
+- للإبلاغ عن أي ثغرات أمنية، راجع [SECURITY.md](SECURITY.md).

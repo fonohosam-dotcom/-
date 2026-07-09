@@ -1,0 +1,17 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: takaful-db
+    environment:
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: takaful
+    ports:
+      - "5432:5432"
+    volumes:
+      - takaful-db-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+volumes:
+  takaful-db-data:
