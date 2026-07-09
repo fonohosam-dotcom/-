@@ -181,9 +181,7 @@ app.use((req, res, next) => {
 });
 
 // Endpoint to provide encryption key to front-end securely (in sandbox environment)
-app.get("/api/security/encryption-key", (req, res) => {
-  res.json({ key: AES_KEY_HEX });
-});
+
 
 // State persistence paths
 const DATA_DIR = path.join(process.cwd(), "data");

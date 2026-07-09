@@ -5,6 +5,8 @@ import { motion, AnimatePresence } from "motion/react";
 import { User, Case, MajorProject, Fund, LedgerEntry, CommunityReport, OmniTransaction, Family, AppNotification, NotificationPreferences } from "./types";
 const ZakatCalculator = lazy(() => import("./components/ZakatCalculator"));
 const GamificationDashboard = lazy(() => import("./components/GamificationDashboard"));
+const AIChatbot = lazy(() => import("./components/AIChatbot"));
+const BlockchainExplorer = lazy(() => import("./components/BlockchainExplorer"));
 const LandingView = lazy(() => import("./components/LandingView"));
 const CitizenPortal = lazy(() => import("./components/CitizenPortal"));
 const ResearcherPortal = lazy(() => import("./components/ResearcherPortal"));
@@ -26,7 +28,7 @@ const MapsSearchPortal = lazy(() => import("./components/MapsSearchPortal"));
 const InteractiveReports = lazy(() => import("./components/InteractiveReports"));
 const WorkspaceIntegration = lazy(() => import("./components/WorkspaceIntegration"));
 import { translations, Language } from "./translations";
-import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, HeartPulse, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText, Star } from "lucide-react";
+import { Bell, Volume2, VolumeX, CheckCheck, Globe, LogOut, LogIn, AlertCircle, Settings, ShieldAlert, CreditCard, Coins, Check, HelpCircle, ShieldCheck, ArrowLeft, ArrowRight, UserCheck, MapPin, Radio, Activity, HeartPulse, RefreshCw, Menu, X, Sun, Moon, Home, Heart, Building2, Map, Printer, FileText, Star, Database } from "lucide-react";
 import UsersManagement from "./components/UsersManagement";
 import UserProfile from "./components/UserProfile";
 
@@ -691,7 +693,8 @@ export default function App() {
         { id: "home", label: t.navHome || "الرئيسية", icon: Home, colorClass: "text-[#10B981]", bgColor: "bg-emerald-500/20", show: featureFlags.module_home !== false },
         { id: "donation", label: t.navDonateNow || "تبرع الآن", icon: Coins, colorClass: "text-amber-500", bgColor: "bg-amber-500/20", show: featureFlags.module_donation !== false },
         { id: "zakat", label: lang === "ar" ? "حاسبة الزكاة الذكية" : "Zakat Calculator", icon: Coins, colorClass: "text-emerald-500", bgColor: "bg-emerald-500/20", show: true },
-        { id: "gamification", label: lang === "ar" ? "لوحة التميز والتأثير" : "Gamification", icon: Star, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: true },
+        { id: "gamification", label: lang === "ar" ? "لوحة التميز والتأثير" : "Gamification", icon: Star, Database, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: true },
+        { id: "blockchain", label: lang === "ar" ? "مستكشف كتل التكافل" : "Blockchain Explorer", icon: Database, colorClass: "text-indigo-500", bgColor: "bg-indigo-500/20", show: true },
         { id: "verify", label: lang === "ar" ? "التحقق ومكافحة الاحتيال" : "Public Verify", icon: ShieldCheck, colorClass: "text-rose-500", bgColor: "bg-rose-500/20", show: featureFlags.module_verify !== false },
         { id: "reports", label: t.navReports || "التقارير والمؤشرات", icon: FileText, colorClass: "text-yellow-500", bgColor: "bg-yellow-500/20", show: featureFlags.module_reports !== false },
       ]
@@ -1055,6 +1058,8 @@ export default function App() {
           <main className="max-w-6xl mx-auto px-4 py-8 min-h-[70vh]">
           {activeTab === "zakat" && <ZakatCalculator lang={lang} t={translations[lang]} theme={theme} />}
           {activeTab === "gamification" && <GamificationDashboard lang={lang} theme={theme} />}
+          <AIChatbot lang={lang} theme={theme} />
+          {activeTab === "blockchain" && <BlockchainExplorer lang={lang} theme={theme} />}
           {activeTab === "home" && (
             <LandingView
               cases={cases}

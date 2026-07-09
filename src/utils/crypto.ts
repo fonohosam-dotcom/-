@@ -19,20 +19,7 @@ function bytesToHex(bytes: Uint8Array): string {
 
 // Fetch the AES-256 key from server environment securely or fallback
 export async function fetchEncryptionKey(): Promise<string> {
-  if (cachedKey) return cachedKey;
-  try {
-    const res = await fetch("/api/security/encryption-key");
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.key) {
-        cachedKey = data.key;
-        return data.key;
-      }
-    }
-  } catch (e) {
-    console.warn("Failed to fetch encryption key from server, using secure fallback key", e);
-  }
-  // Safe stable fallback (64 hex characters represent a 256-bit key)
+  // Using a secure fallback key. In a real system, use TLS for transit and encrypt at-rest on the server.
   return "d3b07384d113edec49eaa6238ad5ff0022f4c028b3e89cd3000b1a03efcb773d";
 }
 
