@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import SmartMatch from "./SmartMatch";
 import { Case, MajorProject, OmniTransaction, User, SkillOffering } from "../types";
 import { translations, Language } from "../translations";
 import ImpactLeaderboard from "./ImpactLeaderboard";

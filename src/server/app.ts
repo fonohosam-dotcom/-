@@ -944,6 +944,28 @@ app.post("/api/auth/session", (req, res) => {
 });
 
 // Users & Role-Based Access Control (RBAC) API
+app.get("/api/users/gamification", async (req, res) => {
+  try {
+    // In a real scenario, this would compute points from the ledger and cases
+    // We will return a simulated gamification object for now.
+    res.json({
+      success: true,
+      data: {
+        points: 850,
+        level: 4,
+        nextLevel: 1000,
+        badges: [
+          { id: 1, name: "مبادر الخير", icon: "Star", desc: "أول تبرع لك على المنصة" },
+          { id: 2, name: "داعم متواصل", icon: "Zap", desc: "تبرع لثلاثة أشهر متتالية" },
+          { id: 3, name: "مساهم مجتمعي", icon: "Star", desc: "أبلغت عن 3 حالات تم التحقق منها" }
+        ]
+      }
+    });
+  } catch(e) {
+    res.status(500).json({ success: false });
+  }
+});
+
 app.get("/api/users", (req, res) => {
   res.json(state.users);
 });
@@ -1936,6 +1958,30 @@ app.get("/api/funds", (req, res) => {
 });
 
 // AI image description & GPS EXIF data stripping simulation
+app.post("/api/ai/fatwa", async (req, res) => {
+  try {
+    const ai = getGenAI();
+    if (!ai) return res.status(503).json({ success: false, error: "AI service unavailable" });
+    
+    const { query } = req.body;
+    if (!query) return res.status(400).json({ success: false, error: "Missing query" });
+
+    const prompt = `أنت مستشار شرعي متخصص في فقه الزكاة والتكافل الاجتماعي، وتعتمد في إجاباتك على المذاهب الفقهية المعتبرة.
+    سؤال المستخدم: "${query}"
+    قدم إجابة مختصرة وواضحة وسهلة الفهم للعامة (بحد أقصى 3 فقرات).`;
+    
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+    
+    res.json({ success: true, text: response.text });
+  } catch (error: any) {
+    logger.error("AI Fatwa error:", error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 app.post("/api/ai/scan-document", async (req, res) => {
   const { imageBase64 } = req.body;
   if (!imageBase64) {
