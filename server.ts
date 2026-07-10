@@ -1,11 +1,17 @@
 import { createServer as createViteServer } from "vite";
 import express from "express";
 import path from "path";
-import app from "./src/server/app.ts";
+import app from "./src/server/app.js";
+import { setupCronJobs } from "./src/server/cron.js";
+import { setupDatabaseTriggers } from "./src/db/triggers.js";
 
 const PORT = 3000;
 
 async function startServer() {
+  // Initialize automated background jobs and database triggers
+  setupCronJobs();
+  await setupDatabaseTriggers();
+
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },

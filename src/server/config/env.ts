@@ -7,6 +7,8 @@ const envSchema = z.object({
   AES_SECRET_KEY: z.string().default("d3b07384d113edec49eaa6238ad5ff0022f4c028b3e89cd3000b1a03efcb773d"),
   GEMINI_API_KEY: z.string().optional(),
   APP_URL: z.string().default("http://localhost:3000"),
+  REDIS_URL: z.string().optional(),
+  DATABASE_URL: z.string().optional(),
 });
 
 export const env = envSchema.parse(process.env);

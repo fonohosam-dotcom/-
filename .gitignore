@@ -10,3 +10,14 @@ sqlite.db
 *.db
 *.bak
 *.tmp
+
+# Temp and database files
+*.db
+*.sqlite
+*.sqlite3
+sqlite.db
+*.bak
+*.tmp
+fix_*.cjs
+split_*.cjs
+refactor_*.ts
