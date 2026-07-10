@@ -1,6 +1,8 @@
 export type UserRole = "admin" | "citizen" | "researcher" | "donor" | "charity" | "evaluation_committee" | "finance_manager" | "volunteer" | "auditor" | "support" | "content_manager" | "field_coordinator" | "data_analyst" | "system_architect";
 
 export interface User {
+  uid?: string;
+  passwordHash?: string;
   id: string;
   email: string;
   fullName: string;

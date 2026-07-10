@@ -36,8 +36,7 @@ router.get("/users/gamification", async (req, res) => {
 
 router.get("/users", async (req, res) => {
   try {
-    const allUsers = await db.select().from(users);
-    res.json(allUsers);
+    res.json(state.users);
   } catch (error) {
     console.error("Error fetching users:", error);
     res.status(500).json({ status: "error" });

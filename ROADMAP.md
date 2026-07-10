@@ -46,3 +46,19 @@
 - **التكافل التعليمي**: دعم المنح الدراسية للطلبة المحتاجين.
 - **بنك الوقت والمهارات**: تطوع الأفراد بمهاراتهم لدعم مشاريع التكافل.
 - **العقود الذكية (Web3)**: توزيع أوتوماتيكي وموثق للتبرعات.
+
+## ERD Overview (PostgreSQL / Drizzle)
+
+The database structure relies on the following core entities:
+- **users**: Core authentication and RBAC structure.
+- **cases**: Submissions for charitable cases and humanitarian needs.
+- **transactions**: Core financial ledger for all donations and distribution.
+- **community_reports**: Moderation and field reports.
+
+## Immediate Action Items (July 2026)
+- [x] Phase 1: Complete Cleanup and Directory Structure Updates
+- [x] Phase 2: React ErrorBoundaries & Global Error Handlers
+- [x] Phase 3: Setup Swagger API documentation
+- [x] Phase 4: Prepare docker-compose.prod.yml for strict production deployments
+- [x] Phase 5: Implement CI/CD workflows using GitHub Actions
+- [ ] Phase 6: Switch fully to Zustand and TanStack React Query for all data fetching
